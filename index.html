@@ -43,10 +43,25 @@ const PRICE_SUB    = 'pri_01kse2kx281zafyyw46kzczasj';
 const PADDLE_TOKEN = 'live_33120c8ba6c31f03ad8da6a395f';
 const MAX = 1240;
 
+// ← Pon aquí el ID de tu video de YouTube cuando lo tengas (ej: 'dQw4w9WgXcQ')
+const PREVIEW_VIDEO_ID = '';
+
 function useIsMobile(bp=760){
   const[m,setM]=React.useState(typeof window!=='undefined'&&window.innerWidth<bp);
   React.useEffect(()=>{const f=()=>setM(window.innerWidth<bp);window.addEventListener('resize',f);return()=>window.removeEventListener('resize',f);},[bp]);
   return m;
+}
+
+function useActiveSection(ids){
+  const[active,setActive]=React.useState('');
+  React.useEffect(()=>{
+    const obs=new IntersectionObserver(entries=>{
+      entries.forEach(e=>{if(e.isIntersecting)setActive(e.target.id);});
+    },{rootMargin:'-30% 0px -60% 0px'});
+    ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
+    return()=>obs.disconnect();
+  },[]);
+  return active;
 }
 
 function Glow({top,left,right,bottom,w=600,h=600,color=W.orange,opacity=0.18,blur=4}){
@@ -69,6 +84,8 @@ const WIcon = {
   flame:(s=18,c=W.orange)=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M13 2c0 4-5 4-5 9 0 1.4.5 2.6 1.4 3.5C8.5 13.6 8 12 8 10.5 8 14 5 15 5 18.5 5 21.5 8 23 12 23s7-1.5 7-4.5C19 13 13 13 13 2z"/></svg>,
   bolt:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>,
   brain:(s=20,c='currentColor',sw=1.6)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M9 4.5a2.5 2.5 0 00-2.5 2.5v.5A2.5 2.5 0 004 10v.5A2.5 2.5 0 005 13a2.5 2.5 0 00-1 2v.5A2.5 2.5 0 006.5 18 2.5 2.5 0 009 20.5h.5V4.5z" stroke={c} strokeWidth={sw}/><path d="M15 4.5a2.5 2.5 0 012.5 2.5v.5A2.5 2.5 0 0120 10v.5a2.5 2.5 0 01-1 2 2.5 2.5 0 011 2v.5a2.5 2.5 0 01-2.5 2.5A2.5 2.5 0 0115 20.5h-.5V4.5z" stroke={c} strokeWidth={sw}/></svg>,
+  play:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M8 5v14l11-7z"/></svg>,
+  x:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke={c} strokeWidth={2} strokeLinecap="round"/></svg>,
 };
 
 function openCheckout(){
@@ -79,25 +96,140 @@ function openCheckout(){
       {priceId:PRICE_SUB, quantity:1},
     ],
     settings:{displayMode:'overlay',theme:'dark',locale:'en'},
-    successUrl:'https://mindshift-landing.vercel.app/welcome',
+    successUrl:'https://mindshiftlabs.lat/welcome',
   });
+}
+
+// ─── VIDEO MODAL ───
+function VideoModal({onClose}){
+  React.useEffect(()=>{
+    document.body.style.overflow='hidden';
+    const onKey=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',onKey);
+    return()=>{document.body.style.overflow='';window.removeEventListener('keydown',onKey);};
+  },[]);
+  return(
+    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.92)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,backdropFilter:'blur(8px)'}}>
+      <div onClick={e=>e.stopPropagation()} style={{position:'relative',width:'100%',maxWidth:840,borderRadius:16,overflow:'hidden',background:W.surface,border:`1px solid ${W.borderStrong}`,boxShadow:`0 40px 80px rgba(0,0,0,0.8)`}}>
+        <button onClick={onClose} style={{position:'absolute',top:12,right:12,zIndex:10,width:36,height:36,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:`1px solid ${W.borderStrong}`,color:W.fg,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          {WIcon.x(16,W.fg)}
+        </button>
+        {PREVIEW_VIDEO_ID ? (
+          <div style={{aspectRatio:'16/9'}}>
+            <iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${PREVIEW_VIDEO_ID}?autoplay=1&rel=0`} frameBorder="0" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen style={{display:'block'}}/>
+          </div>
+        ) : (
+          <div style={{aspectRatio:'16/9',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20,padding:40}}>
+            <div style={{width:80,height:80,borderRadius:'50%',background:W.orangeSoft,border:`1px solid ${W.orange}40`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              {WIcon.play(36,W.orange)}
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontFamily:F.serif,fontSize:28,color:W.fg,marginBottom:8}}>Preview coming soon</div>
+              <div style={{fontFamily:F.sans,fontSize:15,color:W.muted}}>The app preview video launches June 1st</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ─── LEGAL MODAL ───
+const LEGAL_CONTENT = {
+  privacy:{
+    title:'Privacy Policy',
+    updated:'May 2026',
+    body:[
+      {h:'What we collect',t:'When you purchase, we collect your email address, name, and payment information (processed securely by Paddle — we never see your card details). When you use the app, we collect usage data such as habit completions, streaks, and session activity to power your Mental OS.'},
+      {h:'How we use it',t:'Your email is used to deliver your PDFs, send your daily AI Mantra, and communicate important account updates. Usage data powers your personal dashboard and AI-generated content. We do not sell your data to third parties.'},
+      {h:'Third-party services',t:'We use Paddle (payments), Supabase (database & authentication), Resend (transactional email), and Anthropic (AI mantra generation). Each operates under their own privacy policy and processes only the data necessary for their function.'},
+      {h:'Your rights',t:'You can request deletion of your account and data at any time by emailing support@mindshiftlabs.lat. We will process your request within 30 days.'},
+      {h:'Contact',t:'For any privacy questions: support@mindshiftlabs.lat'},
+    ]
+  },
+  terms:{
+    title:'Terms of Service',
+    updated:'May 2026',
+    body:[
+      {h:'Acceptance',t:'By purchasing or using Mindshift Labs, you agree to these terms. If you do not agree, do not use the service.'},
+      {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift app. You may not redistribute, resell, or share access with others.'},
+      {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro app access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the app or by contacting us.'},
+      {h:'Cancellation',t:'Canceling your subscription stops future charges. You retain access until the end of your current billing period. The PDFs remain yours permanently after purchase.'},
+      {h:'Limitation of liability',t:'Mindshift Labs provides tools and content for personal development. We make no guarantee of specific results. Our liability is limited to the amount you paid.'},
+      {h:'Contact',t:'For any questions: support@mindshiftlabs.lat'},
+    ]
+  },
+  refunds:{
+    title:'Refund Policy',
+    updated:'May 2026',
+    body:[
+      {h:'7-day money-back guarantee',t:'If you are not satisfied with your purchase for any reason, contact us within 7 days of your purchase date and we will issue a full refund — no questions asked.'},
+      {h:'How to request',t:'Send an email to support@mindshiftlabs.lat with the subject "Refund Request" and the email address you used to purchase. We process all refunds within 3-5 business days.'},
+      {h:'Subscription refunds',t:'Monthly subscription charges ($9/mo from day 31) are refundable if requested within 48 hours of the charge. Cancel anytime to stop future charges.'},
+      {h:'After 7 days',t:'Refund requests after the 7-day window are evaluated case by case. We are committed to being fair — reach out and we will find a solution.'},
+      {h:'Contact',t:'support@mindshiftlabs.lat'},
+    ]
+  }
+};
+
+function LegalModal({type,onClose}){
+  const content=LEGAL_CONTENT[type];
+  React.useEffect(()=>{
+    document.body.style.overflow='hidden';
+    const onKey=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',onKey);
+    return()=>{document.body.style.overflow='';window.removeEventListener('keydown',onKey);};
+  },[]);
+  return(
+    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.85)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,backdropFilter:'blur(8px)'}}>
+      <div onClick={e=>e.stopPropagation()} style={{position:'relative',width:'100%',maxWidth:640,maxHeight:'80vh',borderRadius:16,overflow:'hidden',background:W.surface,border:`1px solid ${W.borderStrong}`,boxShadow:`0 40px 80px rgba(0,0,0,0.8)`,display:'flex',flexDirection:'column'}}>
+        <div style={{padding:'24px 28px 16px',borderBottom:`1px solid ${W.border}`,display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+          <div>
+            <div style={{fontFamily:F.serif,fontSize:24,color:W.fg}}>{content.title}</div>
+            <div style={{fontFamily:F.mono,fontSize:10,color:W.muted,letterSpacing:1.2,marginTop:4}}>LAST UPDATED · {content.updated}</div>
+          </div>
+          <button onClick={onClose} style={{width:36,height:36,borderRadius:'50%',background:'transparent',border:`1px solid ${W.border}`,color:W.muted,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            {WIcon.x(16,W.muted)}
+          </button>
+        </div>
+        <div style={{padding:'24px 28px',overflowY:'auto',display:'flex',flexDirection:'column',gap:20}}>
+          {content.body.map((s,i)=>(
+            <div key={i}>
+              <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg,marginBottom:6}}>{s.h}</div>
+              <div style={{fontFamily:F.sans,fontSize:13.5,lineHeight:1.7,color:W.fgDim}}>{s.t}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ─── TOP NAV ───
 function TopNav(){
   const m=useIsMobile();
+  const activeSection=useActiveSection(['product','product-2','the-method','pricing','manifesto']);
+  const navLinks=[
+    {label:'Product',id:'product'},
+    {label:'The Method',id:'the-method'},
+    {label:'Pricing',id:'pricing'},
+    {label:'Manifesto',id:'manifesto'},
+  ];
   return(
-    <nav style={{position:'sticky',top:0,zIndex:50,backdropFilter:'blur(18px) saturate(180%)',WebkitBackdropFilter:'blur(18px) saturate(180%)',background:'rgba(11,8,5,0.65)',borderBottom:`1px solid ${W.border}`}}>
+    <nav style={{position:'sticky',top:0,zIndex:50,backdropFilter:'blur(18px) saturate(180%)',WebkitBackdropFilter:'blur(18px) saturate(180%)',background:'rgba(11,8,5,0.75)',borderBottom:`1px solid ${W.border}`}}>
       <div style={{maxWidth:MAX,margin:'0 auto',padding:m?'12px 18px':'14px 32px',display:'flex',alignItems:'center',gap:m?12:32}}>
-        <div style={{display:'inline-flex',alignItems:'center',gap:10}}>
+        <a href="#" style={{display:'inline-flex',alignItems:'center',gap:10,textDecoration:'none'}}>
           <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${W.orange},${W.orangeDeep})`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:F.serif,fontStyle:'italic',fontSize:18,color:'#fff'}}>M</div>
           <span style={{fontFamily:F.sans,fontSize:15,fontWeight:600,color:W.fg,letterSpacing:-0.2}}>Mindshift{m?'':' Labs'}</span>
           {!m&&<span style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.4,padding:'2px 6px',borderRadius:4,background:W.surface,border:`1px solid ${W.border}`,marginLeft:4}}>v2 · BETA</span>}
-        </div>
+        </a>
         {!m&&<div style={{display:'flex',gap:24,marginLeft:16}}>
-          {['Product','The Method','Pricing','Manifesto'].map(l=>(
-            <a key={l} href={`#${l.toLowerCase().replace(/\s/g,'-')}`} style={{fontFamily:F.sans,fontSize:13.5,color:W.fgDim,textDecoration:'none',fontWeight:500,cursor:'pointer'}}>{l}</a>
-          ))}
+          {navLinks.map(({label,id})=>{
+            const isActive=activeSection===id||(id==='product'&&activeSection==='product-2');
+            return(
+              <a key={label} href={`#${id}`} style={{fontFamily:F.sans,fontSize:13.5,color:isActive?W.orange:W.fgDim,textDecoration:'none',fontWeight:500,cursor:'pointer',transition:'color 0.2s',borderBottom:isActive?`1px solid ${W.orange}`:'1px solid transparent',paddingBottom:2}}>{label}</a>
+            );
+          })}
         </div>}
         <div style={{flex:1}}/>
         <button onClick={openCheckout} style={{height:36,padding:'0 18px',borderRadius:999,border:0,background:W.fg,color:W.bg,fontFamily:F.sans,fontSize:13,fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:6}}>
@@ -109,7 +241,7 @@ function TopNav(){
 }
 
 // ─── HERO ───
-function Hero(){
+function Hero({onWatchPreview}){
   const m=useIsMobile();
   return(
     <section style={{position:'relative',overflow:'hidden',padding:m?'64px 20px 48px':'120px 32px 80px'}}>
@@ -136,11 +268,11 @@ function Hero(){
           <button onClick={openCheckout} style={{height:54,padding:'0 26px',borderRadius:999,border:0,background:`linear-gradient(95deg,${W.orange},${W.orangeDeep})`,color:'#fff',fontFamily:F.sans,fontSize:15.5,fontWeight:600,letterSpacing:-0.2,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:10,boxShadow:`0 16px 40px ${W.orange}55,inset 0 1px 0 ${W.gold}aa`,cursor:'pointer',width:m?'100%':'auto'}}>
             Begin your reset {WIcon.arrowR(15,'#fff',2.4)}
           </button>
-          <button style={{height:54,padding:'0 22px',borderRadius:999,background:'transparent',color:W.fg,border:`1px solid ${W.borderStrong}`,fontFamily:F.sans,fontSize:14.5,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:10,width:m?'100%':'auto'}}>
+          <button onClick={onWatchPreview} style={{height:54,padding:'0 22px',borderRadius:999,background:'transparent',color:W.fg,border:`1px solid ${W.borderStrong}`,fontFamily:F.sans,fontSize:14.5,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:10,width:m?'100%':'auto',transition:'border-color 0.2s'}}>
             <span style={{width:22,height:22,borderRadius:'50%',background:W.surfaceRaised,display:'inline-flex',alignItems:'center',justifyContent:'center'}}>
               <span style={{width:0,height:0,borderLeft:`6px solid ${W.fg}`,borderTop:'4px solid transparent',borderBottom:'4px solid transparent',marginLeft:2}}/>
             </span>
-            Watch 60s film
+            Watch preview
           </button>
         </div>
         <div style={{marginTop:m?22:28,fontFamily:F.mono,fontSize:m?10:11.5,color:W.muted,letterSpacing:1.4}}>
@@ -431,7 +563,7 @@ function FAQ(){
     {q:'How do I access the app?',a:'Download Mindshift Labs for free from the App Store, sign in with the same email you used to purchase, create your password, and you\'re in — Pro access activated automatically from the first login.'},
     {q:'What happens after 30 days?',a:'The $9/month subscription activates automatically. You can cancel anytime from inside the app or by emailing us — no friction, no hidden steps.'},
     {q:'What countries can purchase?',a:'Any country in the world. We accept all major international credit and debit cards, PayPal, and local payment methods. Payments are processed by Paddle, a global payments platform.'},
-    {q:'Is there a money-back guarantee?',a:'Yes. If within the first 7 days it\'s not right for you, we\'ll refund you — no questions asked. Email us at support@mindshiftlabs.com'},
+    {q:'Is there a money-back guarantee?',a:'Yes. If within the first 7 days it\'s not right for you, we\'ll refund you — no questions asked. Email us at support@mindshiftlabs.lat'},
     {q:'Does it work on Android?',a:'iOS only for now. The Android version is in development and will be available to all Pro users in the coming months.'},
   ];
   return(
@@ -444,7 +576,7 @@ function FAQ(){
           </h2>
           {!m&&<p style={{marginTop:20,fontFamily:F.sans,fontSize:15,lineHeight:1.7,color:W.fgDim}}>
             Have another question?<br/>
-            <span style={{color:W.orange}}>support@mindshiftlabs.com</span>
+            <a href="mailto:support@mindshiftlabs.lat" style={{color:W.orange,textDecoration:'none'}}>support@mindshiftlabs.lat</a>
           </p>}
         </div>
         <div style={{marginTop:m?32:0}}>
@@ -490,13 +622,37 @@ function ClosingCTA(){
 }
 
 // ─── FOOTER ───
-function Footer(){
+function Footer({onOpenLegal}){
   const m=useIsMobile();
   const cols=[
-    {h:'PRODUCT',l:['Daily Reset','Mental OS','AI Mantra','Focus Score','iOS App']},
-    {h:'COMPANY',l:['Manifesto','Method','Press','Changelog','Contact']},
-    {h:'LEGAL',l:['Privacy','Terms','Refunds','Security','Data export']},
+    {h:'PRODUCT',l:[
+      {t:'Daily Reset',href:'#the-method'},
+      {t:'Mental OS',href:'#product'},
+      {t:'AI Mantra',href:'#product-2'},
+      {t:'Focus Score',href:'#product-2'},
+      {t:'iOS App',href:'#product-2'},
+    ]},
+    {h:'COMPANY',l:[
+      {t:'Manifesto',href:'#manifesto'},
+      {t:'Method',href:'#the-method'},
+      {t:'Press',href:'mailto:press@mindshiftlabs.lat'},
+      {t:'Changelog',href:'#'},
+      {t:'Contact',href:'mailto:support@mindshiftlabs.lat'},
+    ]},
+    {h:'LEGAL',l:[
+      {t:'Privacy',modal:'privacy'},
+      {t:'Terms',modal:'terms'},
+      {t:'Refunds',modal:'refunds'},
+      {t:'Security',href:'mailto:support@mindshiftlabs.lat'},
+      {t:'Data export',href:'mailto:support@mindshiftlabs.lat'},
+    ]},
   ];
+  const linkStyle={fontFamily:F.sans,fontSize:13,color:W.fgDim,textDecoration:'none',cursor:'pointer',transition:'color 0.15s'};
+  const renderLinks=(l)=>l.map(item=>(
+    item.modal
+      ? <a key={item.t} onClick={()=>onOpenLegal(item.modal)} style={linkStyle}>{item.t}</a>
+      : <a key={item.t} href={item.href} style={linkStyle}>{item.t}</a>
+  ));
   const brand=(
     <div>
       <div style={{display:'inline-flex',alignItems:'center',gap:10}}>
@@ -511,8 +667,10 @@ function Footer(){
   return(
     <footer style={{padding:m?'48px 20px 60px':'60px 32px 80px',borderTop:`1px solid ${W.border}`,background:W.bg}}>
       <div style={{maxWidth:MAX,margin:'0 auto'}}>
-        {m?(<>{brand}<div style={{marginTop:32,display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{c.l.map(i=><a key={i} style={{fontFamily:F.sans,fontSize:13,color:W.fgDim,textDecoration:'none',cursor:'pointer'}}>{i}</a>)}</div></div>)}</div></>)
-        :(<div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40}}>{brand}{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{c.l.map(i=><a key={i} style={{fontFamily:F.sans,fontSize:13,color:W.fgDim,textDecoration:'none',cursor:'pointer'}}>{i}</a>)}</div></div>)}</div>)}
+        {m
+          ? <>{brand}<div style={{marginTop:32,display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{renderLinks(c.l)}</div></div>)}</div></>
+          : <div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40}}>{brand}{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{renderLinks(c.l)}</div></div>)}</div>
+        }
       </div>
       <div style={{maxWidth:MAX,margin:`${m?36:60}px auto 0`,paddingTop:24,borderTop:`1px solid ${W.border}`,display:'flex',flexDirection:m?'column':'row',gap:m?10:0,justifyContent:'space-between',alignItems:m?'flex-start':'center',fontFamily:F.mono,fontSize:10.5,color:W.dim,letterSpacing:1}}>
         <span>© 2026 MINDSHIFT LABS · BUILT FOR THE QUIET WORK</span>
@@ -524,15 +682,21 @@ function Footer(){
 
 // ─── ROOT ───
 function App(){
+  const[showVideo,setShowVideo]=React.useState(false);
+  const[showLegal,setShowLegal]=React.useState(null);
+
   React.useEffect(()=>{
     if(typeof Paddle!=='undefined'){
       Paddle.Setup({token:PADDLE_TOKEN});
     }
   },[]);
+
   return(
     <div style={{background:W.bg,color:W.fg,fontFamily:F.sans,WebkitFontSmoothing:'antialiased',MozOsxFontSmoothing:'grayscale',minHeight:'100vh'}}>
+      {showVideo&&<VideoModal onClose={()=>setShowVideo(false)}/>}
+      {showLegal&&<LegalModal type={showLegal} onClose={()=>setShowLegal(null)}/>}
       <TopNav/>
-      <Hero/>
+      <Hero onWatchPreview={()=>setShowVideo(true)}/>
       <WhatYouGet/>
       <AppPreview/>
       <HowItWorks/>
@@ -540,7 +704,7 @@ function App(){
       <Pricing/>
       <FAQ/>
       <ClosingCTA/>
-      <Footer/>
+      <Footer onOpenLegal={setShowLegal}/>
     </div>
   );
 }
