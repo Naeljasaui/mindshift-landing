@@ -208,15 +208,19 @@ function LegalModal({type,onClose}){
 // ─── TOP NAV ───
 function TopNav(){
   const m=useIsMobile();
-  const activeSection=useActiveSection(['product','product-2','the-method','pricing','manifesto']);
+  const scrollActive=useActiveSection(['product','product-2','the-method','pricing','manifesto']);
+  const[clicked,setClicked]=React.useState(null);
+  const activeSection=clicked||scrollActive;
   const navLinks=[
     {label:'Product',id:'product'},
     {label:'The Method',id:'the-method'},
     {label:'Pricing',id:'pricing'},
     {label:'Manifesto',id:'manifesto'},
   ];
+  // clear clicked state when scroll catches up
+  React.useEffect(()=>{if(scrollActive===clicked)setClicked(null);},[scrollActive]);
   return(
-    <nav style={{position:'sticky',top:0,zIndex:50,backdropFilter:'blur(18px) saturate(180%)',WebkitBackdropFilter:'blur(18px) saturate(180%)',background:'rgba(11,8,5,0.75)',borderBottom:`1px solid ${W.border}`}}>
+    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,backdropFilter:'blur(18px) saturate(180%)',WebkitBackdropFilter:'blur(18px) saturate(180%)',background:'rgba(11,8,5,0.88)',borderBottom:`1px solid ${W.border}`}}>
       <div style={{maxWidth:MAX,margin:'0 auto',padding:m?'12px 18px':'14px 32px',display:'flex',alignItems:'center',gap:m?12:32}}>
         <a href="#" style={{display:'inline-flex',alignItems:'center',gap:10,textDecoration:'none'}}>
           <div style={{width:30,height:30,borderRadius:8,background:`linear-gradient(135deg,${W.orange},${W.orangeDeep})`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:F.serif,fontStyle:'italic',fontSize:18,color:'#fff'}}>M</div>
@@ -227,7 +231,7 @@ function TopNav(){
           {navLinks.map(({label,id})=>{
             const isActive=activeSection===id||(id==='product'&&activeSection==='product-2');
             return(
-              <a key={label} href={`#${id}`} style={{fontFamily:F.sans,fontSize:13.5,color:isActive?W.orange:W.fgDim,textDecoration:'none',fontWeight:500,cursor:'pointer',transition:'color 0.2s',borderBottom:isActive?`1px solid ${W.orange}`:'1px solid transparent',paddingBottom:2}}>{label}</a>
+              <a key={label} href={`#${id}`} onClick={()=>setClicked(id)} style={{fontFamily:F.sans,fontSize:13.5,color:isActive?W.orange:W.muted,textDecoration:'none',fontWeight:isActive?600:500,cursor:'pointer',transition:'color 0.2s',borderBottom:isActive?`1px solid ${W.orange}`:'1px solid transparent',paddingBottom:2}}>{label}</a>
             );
           })}
         </div>}
@@ -244,7 +248,7 @@ function TopNav(){
 function Hero({onWatchPreview}){
   const m=useIsMobile();
   return(
-    <section style={{position:'relative',overflow:'hidden',padding:m?'64px 20px 48px':'120px 32px 80px'}}>
+    <section style={{position:'relative',overflow:'hidden',padding:m?'112px 20px 48px':'178px 32px 80px'}}>
       <Glow top={-200} left={'50%'} w={m?700:1100} h={m?700:1100} color={W.orange} opacity={0.18} blur={20}/>
       <Glow bottom={-300} left={-200} w={800} h={800} color={W.violet} opacity={0.08} blur={20}/>
       <div style={{position:'absolute',inset:0,opacity:0.4,mixBlendMode:'overlay',background:`repeating-radial-gradient(circle at 50% 50%,${W.faint} 0,${W.faint} 1px,transparent 1px,transparent 3px)`,pointerEvents:'none'}}/>
