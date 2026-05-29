@@ -93,7 +93,6 @@ function openCheckout(){
   Paddle.Checkout.open({
     items:[
       {priceId:PRICE_PACK,quantity:1},
-      {priceId:PRICE_SUB, quantity:1},
     ],
     settings:{displayMode:'overlay',theme:'dark',locale:'en'},
     successUrl:'https://mindshiftlabs.lat/welcome',
@@ -644,9 +643,9 @@ function Footer({onOpenLegal}){
       {t:'Contact',href:'mailto:support@mindshiftlabs.lat'},
     ]},
     {h:'LEGAL',l:[
-      {t:'Privacy',modal:'privacy'},
-      {t:'Terms',modal:'terms'},
-      {t:'Refunds',modal:'refunds'},
+      {t:'Privacy',href:'/privacy.html'},
+      {t:'Terms',href:'/terms.html'},
+      {t:'Refunds',href:'/refunds.html'},
       {t:'Security',href:'mailto:support@mindshiftlabs.lat'},
       {t:'Data export',href:'mailto:support@mindshiftlabs.lat'},
     ]},
