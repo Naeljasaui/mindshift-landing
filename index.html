@@ -153,7 +153,7 @@ const LEGAL_CONTENT = {
     body:[
       {h:'Acceptance',t:'By purchasing or using Mindshift Labs, you agree to these terms. If you do not agree, do not use the service.'},
       {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift app. You may not redistribute, resell, or share access with others.'},
-      {h:'Payments & subscription',t:'The €24.99 one-time payment grants you immediate access to the PDFs and 30 days of Pro app access. On day 31, a €8.99/month subscription activates automatically via Paddle. You can cancel at any time from inside the app or by contacting us.'},
+      {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro app access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the app or by contacting us.'},
       {h:'Cancellation',t:'Canceling your subscription stops future charges. You retain access until the end of your current billing period. The PDFs remain yours permanently after purchase.'},
       {h:'Limitation of liability',t:'Mindshift Labs provides tools and content for personal development. We make no guarantee of specific results. Our liability is limited to the amount you paid.'},
       {h:'Contact',t:'For any questions: support@mindshiftlabs.lat'},
@@ -280,11 +280,11 @@ function Hero({onWatchPreview}){
           </button>
         </div>
         <div style={{marginTop:m?22:28,fontFamily:F.mono,fontSize:m?10:11.5,color:W.muted,letterSpacing:1.4}}>
-          {m?'€24.99 TODAY · 30 DAYS PRO · THEN €8.99/MO':'ONE-TIME €24.99 · 30 PRO DAYS INCLUDED · THEN €8.99/MO · CANCEL ANYTIME'}
+          {m?'$25 TODAY · 30 DAYS PRO · THEN $9/MO':'ONE-TIME $25 · 30 PRO DAYS INCLUDED · THEN $9/MO · CANCEL ANYTIME'}
         </div>
       </div>
       <div style={{position:'relative',maxWidth:900,margin:m?'40px auto 0':'70px auto 0',display:m?'grid':'flex',gridTemplateColumns:m?'repeat(2,1fr)':'none',gap:m?12:0,alignItems:'center',justifyContent:'space-between',padding:m?'16px':'18px 28px',borderRadius:20,background:'rgba(11,8,5,0.5)',border:`1px solid ${W.border}`}}>
-        {[{v:'30 days',l:'PRO INCLUDED',s:'from day one'},{v:'€24.99',l:'FOUNDER PRICE',s:'one-time'},{v:'€8.99',l:'FROM MONTH 2',s:'cancelable'},{v:'100%',l:'AUTOMATED',s:'PDFs instant'}].map((s,i)=>(
+        {[{v:'30 days',l:'PRO INCLUDED',s:'from day one'},{v:'$25',l:'FOUNDER PRICE',s:'one-time'},{v:'$9',l:'FROM MONTH 2',s:'cancelable'},{v:'100%',l:'AUTOMATED',s:'PDFs instant'}].map((s,i)=>(
           <div key={i} style={{display:'flex',flexDirection:m?'column':'row',alignItems:m?'flex-start':'baseline',gap:m?2:10}}>
             <span style={{fontFamily:F.serif,fontSize:m?26:32,color:W.fg,letterSpacing:-0.8,lineHeight:1}}>{s.v}</span>
             <div style={{display:'flex',flexDirection:'column',gap:2}}>
@@ -526,7 +526,7 @@ function Pricing(){
             <div style={{height:2,background:`linear-gradient(90deg,${W.orange},${W.gold},${W.orange})`}}/>
             <div style={{padding:m?'32px 24px':'40px 40px'}}>
               <div style={{display:'flex',alignItems:'baseline',gap:8,marginBottom:6}}>
-                <span style={{fontFamily:F.serif,fontSize:m?56:72,lineHeight:1,color:W.fg,letterSpacing:-2}}>€24.99</span>
+                <span style={{fontFamily:F.serif,fontSize:m?56:72,lineHeight:1,color:W.fg,letterSpacing:-2}}>$25</span>
                 <span style={{fontFamily:F.sans,fontSize:14,color:W.muted}}>one-time</span>
               </div>
               <div style={{fontFamily:F.mono,fontSize:10,color:W.orange,letterSpacing:1.6,marginBottom:24}}>FOUNDER PRICE · LIMITED TIME</div>
@@ -545,7 +545,7 @@ function Pricing(){
                 Get full access {WIcon.arrowR(15,'#fff',2.4)}
               </button>
               <div style={{marginTop:16,textAlign:'center',fontFamily:F.mono,fontSize:10,color:W.dim,letterSpacing:1.2,lineHeight:1.7}}>
-                FROM DAY 31 · €8.99/MO · CANCEL FROM THE APP<br/>SECURE PAYMENTS VIA PADDLE
+                FROM DAY 31 · $9/MO · CANCEL FROM THE APP<br/>SECURE PAYMENTS VIA PADDLE
               </div>
             </div>
           </div>
@@ -567,7 +567,7 @@ function FAQ(){
     {q:'How do I access the app?',a:'Download Mindshift Labs for free from the App Store, sign in with the same email you used to purchase, create your password, and you\'re in — Pro access activated automatically from the first login.'},
     {q:'What happens after 30 days?',a:'The $9/month subscription activates automatically. You can cancel anytime from inside the app or by emailing us — no friction, no hidden steps.'},
     {q:'What countries can purchase?',a:'Any country in the world. We accept all major international credit and debit cards, PayPal, and local payment methods. Payments are processed by Paddle, a global payments platform.'},
-    {q:'Is there a money-back guarantee?',a:'Yes. If within the first 7 days it\'s not right for you, we\'ll refund your €24.99 — no questions asked. Email us at support@mindshiftlabs.lat'},
+    {q:'Is there a money-back guarantee?',a:'Yes. If within the first 7 days it\'s not right for you, we\'ll refund you — no questions asked. Email us at support@mindshiftlabs.lat'},
     {q:'Does it work on Android?',a:'iOS only for now. The Android version is in development and will be available to all Pro users in the coming months.'},
   ];
   return(
@@ -614,11 +614,11 @@ function ClosingCTA(){
         </p>
         <div style={{marginTop:m?32:40}}>
           <button onClick={openCheckout} style={{height:60,padding:'0 32px',borderRadius:999,border:0,background:`linear-gradient(95deg,${W.orange},${W.orangeDeep})`,color:'#fff',fontFamily:F.sans,fontSize:17,fontWeight:600,display:'inline-flex',alignItems:'center',gap:10,boxShadow:`0 20px 50px ${W.orange}66,inset 0 1px 0 ${W.gold}aa`,cursor:'pointer',width:m?'100%':'auto',justifyContent:'center'}}>
-            Begin · €24.99 today {WIcon.arrowR(16,'#fff',2.4)}
+            Begin · $25 today {WIcon.arrowR(16,'#fff',2.4)}
           </button>
         </div>
         <div style={{marginTop:22,fontFamily:F.mono,fontSize:m?10:11,color:W.muted,letterSpacing:1.4}}>
-          €24.99 TODAY · 30 PRO DAYS · THEN €8.99/MO · CANCEL ANYTIME · 7-DAY MONEY BACK
+          $25 TODAY · 30 PRO DAYS · THEN $9/MO · CANCEL ANYTIME · 7-DAY MONEY BACK
         </div>
       </div>
     </section>
