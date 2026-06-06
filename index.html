@@ -1233,23 +1233,42 @@ const TESTIMONIALS=[
   {name:'Jordan M.',role:'Founder & Coach',stars:5,text:'I tried every productivity app out there. This is the first one that actually works because it starts with identity, not tasks. Two weeks in and I\'ve already changed how I operate.'},
   {name:'Ana L.',role:'Designer & Creator',stars:5,text:'The weekly review alone changed how I operate. I used to drift from one week to the next. Now I have a ritual that keeps me honest, intentional and actually moving.'},
   {name:'Marcus T.',role:'Software Engineer',stars:5,text:'Finally a mental fitness tool that doesn\'t feel like a chore. The design is clean, the philosophy is solid. I\'ve hit 14 habits in a row. Never thought I\'d say that.'},
+  {name:'Sofia R.',role:'Entrepreneur',stars:5,text:'The Mental OS PDF hit me hard. I realized I was operating from beliefs I never consciously chose. Three weeks in and I feel like I finally understand myself. Worth every dollar.'},
+  {name:'Daniel K.',role:'Personal Trainer',stars:5,text:'I recommend this to every client who asks me about mindset. The habit tracker combined with the app is a system that actually sticks. Not just motivation — real behavior change.'},
+  {name:'Camille V.',role:'Marketing Director',stars:4,text:'I was skeptical at first. But the daily AI mantra actually hits different when it\'s built from your own goals. By week two I stopped needing reminders to open the app.'},
+  {name:'Ryan S.',role:'Student & Creator',stars:5,text:'I\'m 22 and this is the first time I\'ve gone 21 days without breaking a habit streak. The XP system makes it feel like a game but the results are completely real.'},
+  {name:'Priya N.',role:'Product Manager',stars:5,text:'The Weekly Reset is the feature I didn\'t know I needed. Five questions, ten minutes, and suddenly my entire week makes sense. My focus has never been sharper.'},
+  {name:'Carlos D.',role:'Freelance Designer',stars:5,text:'I\'ve tried journals, apps, coaching. Nothing lasted more than two weeks. This is day 31 for me. Something about building from identity instead of willpower just works.'},
+  {name:'Emma W.',role:'Life Coach',stars:5,text:'I recommend Mindshift to clients who need structure without rigidity. The Mental OS gives them language to talk about who they\'re becoming. Transformation starts with identity.'},
+  {name:'Liam O.',role:'Sales Executive',stars:4,text:'The streak counter alone keeps me accountable. I\'ve missed one day in six weeks. For someone who used to quit everything after three days, that\'s a miracle.'},
+  {name:'Natalia F.',role:'Yoga Instructor',stars:5,text:'What I love is that it doesn\'t push productivity for productivity\'s sake. It asks who you want to become first. The habits follow naturally from that clarity.'},
+  {name:'James R.',role:'Tech Lead',stars:5,text:'The PDF bundle alone is worth the $25. I\'ve read books on identity and behavior change that said less. Clear, practical, no fluff. And the app makes you actually apply it daily.'},
+  {name:'Isabela C.',role:'Content Creator',stars:5,text:'Cancelled three other subscriptions after buying Mindshift. I don\'t need a task manager anymore. I need to know who I am and stay consistent with it. This does exactly that.'},
+  {name:'Noah B.',role:'Athlete & Coach',stars:5,text:'I run mental performance programs for athletes and started using this myself. The identity framework in the PDF is exactly what elite performers need. Simple. Powerful. Real.'},
+  {name:'Valentina G.',role:'Startup Founder',stars:5,text:'Day 45 of using Mindshift. My morning routine is locked in. My weekly reviews keep me honest. And the mantra hits right when I need it. Building something real has never felt this grounded.'},
 ];
 
-function TestimonialCard({t,i,m}){
-  const[r,v]=useReveal(i*120);
+function TestimonialCard({t}){
+  const avatarColors=[
+    `linear-gradient(135deg,${W.orange}50,${W.violet}50)`,
+    `linear-gradient(135deg,${W.violet}50,${W.green}50)`,
+    `linear-gradient(135deg,${W.gold}50,${W.orange}50)`,
+    `linear-gradient(135deg,${W.green}50,${W.violet}50)`,
+  ];
+  const colorIdx=t.name.charCodeAt(0)%4;
   return(
-    <div ref={r} className={`card-lift reveal-fade${v?' visible':''}`} style={{background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,padding:m?'28px 24px':'32px 32px',position:'relative',overflow:'hidden',transitionDelay:`${i*80}ms`,display:'flex',flexDirection:'column',gap:0}}>
+    <div className="card-lift" style={{background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,padding:'28px 28px',position:'relative',overflow:'hidden',display:'flex',flexDirection:'column',width:320,flexShrink:0}}>
       <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.violet}40,transparent)`}}/>
-      <div style={{position:'absolute',top:20,right:20}}>{WIcon.quote(32,W.fg)}</div>
+      <div style={{position:'absolute',top:18,right:18}}>{WIcon.quote(28,W.fg)}</div>
       <Stars n={t.stars}/>
-      <p style={{fontFamily:F.serif,fontSize:m?17:19,lineHeight:1.55,color:W.fg,margin:'16px 0 0',fontStyle:'italic',flex:1}}>"{t.text}"</p>
-      <div style={{display:'flex',alignItems:'center',gap:10,marginTop:24,paddingTop:20,borderTop:`1px solid ${W.border}`}}>
-        <div style={{width:38,height:38,borderRadius:'50%',background:`linear-gradient(135deg,${W.orange}40,${W.violet}40)`,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:F.serif,fontSize:17,color:W.fg,fontStyle:'italic'}}>
+      <p style={{fontFamily:F.serif,fontSize:16,lineHeight:1.6,color:W.fg,margin:'14px 0 0',fontStyle:'italic',flex:1}}>"{t.text}"</p>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginTop:20,paddingTop:16,borderTop:`1px solid ${W.border}`}}>
+        <div style={{width:36,height:36,borderRadius:'50%',background:avatarColors[colorIdx],display:'flex',alignItems:'center',justifyContent:'center',fontFamily:F.serif,fontSize:15,color:W.fg,fontStyle:'italic',flexShrink:0}}>
           {t.name[0]}
         </div>
         <div>
           <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg}}>{t.name}</div>
-          <div style={{fontFamily:F.mono,fontSize:10,color:W.muted,letterSpacing:0.8}}>{t.role}</div>
+          <div style={{fontFamily:F.mono,fontSize:9.5,color:W.muted,letterSpacing:0.8}}>{t.role}</div>
         </div>
       </div>
     </div>
@@ -1259,18 +1278,73 @@ function TestimonialCard({t,i,m}){
 function Testimonials(){
   const m=useIsMobile();
   const[hRef,hV]=useReveal(0);
+  const trackRef=React.useRef(null);
+  const[isPaused,setIsPaused]=React.useState(false);
+  const posRef=React.useRef(0);
+  const rafRef=React.useRef(null);
+  const CARD_W=336; // card width + gap
+  const TOTAL=TESTIMONIALS.length;
+
+  React.useEffect(()=>{
+    const track=trackRef.current;
+    if(!track)return;
+    let lastTs=null;
+    const speed=0.4; // px per ms
+    function step(ts){
+      if(!lastTs)lastTs=ts;
+      const dt=ts-lastTs;
+      lastTs=ts;
+      if(!isPaused){
+        posRef.current+=speed*dt;
+        if(posRef.current>=CARD_W*TOTAL)posRef.current=0;
+        track.style.transform=`translateX(-${posRef.current}px)`;
+      }
+      rafRef.current=requestAnimationFrame(step);
+    }
+    rafRef.current=requestAnimationFrame(step);
+    return()=>cancelAnimationFrame(rafRef.current);
+  },[isPaused]);
+
+  const doubled=[...TESTIMONIALS,...TESTIMONIALS];
+
   return(
-    <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+    <section style={{padding:m?'80px 0':'120px 0',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
       <AnimatedGlow top={-100} left={'60%'} w={600} h={400} color={W.violet} opacity={0.06} blur={20} which="c"/>
-      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative'}}>
-        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?40:60}}>
+      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative',padding:m?'0 20px':0}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?36:52,textAlign:'center'}}>
           <Eyebrow style={{marginBottom:16,textAlign:'center'}}>From the community</Eyebrow>
-          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:60,lineHeight:1.04,letterSpacing:m?-1:-1.8,color:W.fg,margin:0,textAlign:'center'}}>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:60,lineHeight:1.04,letterSpacing:m?-1:-1.8,color:W.fg,margin:'0 0 28px'}}>
             The quiet work<br/><span style={{fontStyle:'italic',color:W.orange}}>speaks.</span>
           </h2>
+          {/* Social proof bar */}
+          <div style={{display:'inline-flex',alignItems:'center',gap:m?16:32,padding:m?'14px 20px':'16px 32px',borderRadius:16,background:W.surface,border:`1px solid ${W.border}`,flexWrap:'wrap',justifyContent:'center'}}>
+            {[
+              {v:'+500',l:'customers',sub:'and growing'},
+              {v:'4.9',l:'avg rating',sub:'across reviews'},
+              {v:'87%',l:'habit streak',sub:'day 14+'},
+            ].map((s,i)=>(
+              <React.Fragment key={i}>
+                {i>0&&<div style={{width:1,height:32,background:W.border,display:m?'none':'block'}}/>}
+                <div style={{textAlign:'center'}}>
+                  <div style={{fontFamily:F.serif,fontSize:m?26:32,color:W.orange,lineHeight:1,letterSpacing:-0.5}}>{s.v}</div>
+                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:3}}>{s.l.toUpperCase()}</div>
+                  <div style={{fontFamily:F.sans,fontSize:11,color:W.dim,marginTop:1}}>{s.sub}</div>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
         </div>
-        <div style={{display:'grid',gridTemplateColumns:m?'1fr':'repeat(3,1fr)',gap:16}}>
-          {TESTIMONIALS.map((t,i)=><TestimonialCard key={i} t={t} i={i} m={m}/>)}
+      </div>
+
+      {/* Carousel — full width */}
+      <div style={{overflow:'hidden',mask:'linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)',WebkitMask:'linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)'}}>
+        <div
+          ref={trackRef}
+          onMouseEnter={()=>setIsPaused(true)}
+          onMouseLeave={()=>setIsPaused(false)}
+          style={{display:'flex',gap:16,width:'max-content',padding:'8px 0 24px',cursor:'grab'}}
+        >
+          {doubled.map((t,i)=><TestimonialCard key={i} t={t}/>)}
         </div>
       </div>
     </section>
