@@ -335,35 +335,45 @@ function MentalSoftwarePreview(){
 // ── App Screen Mockups ────────────────────────────────────────────────────
 
 function AppScreenToday(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const navItems=[{icon:'⊙',l:'Habits'},{icon:'◈',l:'Mental OS'},{icon:'▦',l:'Weekly'},{icon:'✦',l:'Mantra'}];
   return(
-    <div style={{background:W.bg,height:'100%',padding:'16px 14px',display:'flex',flexDirection:'column',gap:0}}>
-      <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1.5,marginBottom:6}}>SUNDAY · JUNE 1 · 2026</div>
-      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:2,lineHeight:1.2}}>Good morning, <span style={{fontStyle:'italic',color:W.orange}}>you.</span></div>
-      <div style={{fontFamily:F.sans,fontSize:10,color:W.muted,marginBottom:13}}>Day 14 of your mental reset</div>
-      <div style={{background:W.surfaceWarm,borderRadius:10,padding:11,marginBottom:9,border:`1px solid ${W.border}`}}>
-        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6}}>
-          <span style={{fontSize:9,color:W.gold}}>✦</span>
-          <span style={{fontFamily:F.mono,fontSize:7,color:W.gold,letterSpacing:1.3}}>TODAY'S AI MANTRA</span>
+    <div style={{background:BG,height:'100%',padding:'14px 12px',display:'flex',flexDirection:'column',gap:0,fontFamily:F.sans}}>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:1,lineHeight:1.2}}>Good afternoon, <span style={{fontStyle:'italic',color:W.orange}}>you.</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:11}}>3 of 3 habits done today</div>
+      <div style={{background:CARD,borderRadius:10,padding:'10px 12px',marginBottom:8,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:7}}>
+          <span style={{color:W.orange,fontSize:8}}>✦</span>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.4}}>YOUR MANTRA</span>
         </div>
-        <div style={{fontFamily:F.serif,fontStyle:'italic',fontSize:11,color:W.fg,lineHeight:1.45}}>"Your identity is the sum of your choices. Choose deliberately."</div>
+        <div style={{fontFamily:F.serif,fontStyle:'italic',fontSize:10.5,color:W.orange,lineHeight:1.5}}>"I act with discipline over doubt, trust myself over validation, and build my future through consistent action today."</div>
       </div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:9}}>
-        {[{l:'Streak',v:'14d',c:W.orange,e:'🔥'},{l:'XP Today',v:'+340',c:W.gold,e:'⚡'}].map((s,i)=>(
-          <div key={i} style={{background:W.surface,borderRadius:8,padding:9,border:`1px solid ${W.border}`}}>
-            <div style={{fontSize:10,marginBottom:2}}>{s.e}</div>
-            <div style={{fontFamily:F.serif,fontSize:18,color:s.c,lineHeight:1}}>{s.v}</div>
-            <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginTop:2}}>{s.l}</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:8}}>
+        <div style={{background:CARD,borderRadius:10,padding:'9px 11px',border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:4}}>
+            <span style={{fontSize:10}}>🔥</span>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2}}>STREAK</span>
           </div>
-        ))}
+          <div style={{fontFamily:F.serif,fontSize:22,color:W.orange,lineHeight:1}}>2d</div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>2 days strong</div>
+        </div>
+        <div style={{background:CARD,borderRadius:10,padding:'9px 11px',border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:4}}>
+            <span style={{fontSize:10}}>⚡</span>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2}}>XP TODAY</span>
+          </div>
+          <div style={{fontFamily:F.serif,fontSize:22,color:W.gold,lineHeight:1}}>+300</div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>3 habits done</div>
+        </div>
       </div>
-      <div style={{background:W.surface,borderRadius:10,padding:10,border:`1px solid ${W.border}`}}>
-        <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:7}}>TODAY'S HABITS</div>
-        {[{n:'Meditation',d:true},{n:'Exercise',d:true},{n:'Read 30min',d:false}].map((h,i)=>(
-          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:i<2?`1px solid ${W.border}`:'none'}}>
-            <div style={{width:15,height:15,borderRadius:4,background:h.d?W.green:'transparent',border:`1px solid ${h.d?W.green:W.borderStrong}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-              {h.d&&<span style={{color:'#0B0805',fontSize:9,fontWeight:700,lineHeight:1}}>✓</span>}
-            </div>
-            <span style={{fontFamily:F.sans,fontSize:10.5,color:h.d?W.muted:W.fg,textDecoration:h.d?'line-through':'none'}}>{h.n}</span>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+        {navItems.map((n,i)=>(
+          <div key={i} style={{background:CARD,borderRadius:10,padding:'10px 11px',border:`1px solid ${BORDER}`}}>
+            <div style={{fontSize:13,marginBottom:6,color:i===0?W.green:i===1?W.violet:W.orange}}>{n.icon}</div>
+            <div style={{fontFamily:F.sans,fontSize:11,fontWeight:600,color:W.fg,marginBottom:2}}>{n.l}</div>
+            <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted}}>{i===0?'3/3 today':i===1?'Your identity':i===2?'Reflect & reset':'Today\'s message'}</div>
           </div>
         ))}
       </div>
@@ -372,32 +382,58 @@ function AppScreenToday(){
 }
 
 function AppScreenHabits(){
-  const habits=[
-    {n:'Meditation',streak:14,done:true},
-    {n:'Exercise',streak:9,done:true},
-    {n:'Read 30min',streak:6,done:false},
-    {n:'No scroll AM',streak:3,done:false},
-    {n:'Cold shower',streak:1,done:false},
-  ];
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const habits=[{n:'meditate',done:true},{n:'read',done:true},{n:'2L water',done:true}];
+  const days=['S','M','T','W','T','F','S'];
+  const dayColors=['#2a2a2a','#2a2a2a','#2a2a2a','#2a2a2a','#2a2a2a',W.green,W.orange];
   return(
-    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
-      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Your <span style={{fontStyle:'italic',color:W.green}}>habits</span></div>
-      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:13}}>June 2026 · 14-day streak 🔥</div>
-      <div style={{display:'flex',gap:6,marginBottom:13}}>
-        {['All','Done','Pending'].map((f,i)=>(
-          <div key={i} style={{padding:'4px 10px',borderRadius:999,background:i===0?W.orangeSoft:'transparent',border:`1px solid ${i===0?W.orange:W.border}`,fontFamily:F.mono,fontSize:7.5,color:i===0?W.orange:W.muted,letterSpacing:0.8}}>{f}</div>
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        <div style={{width:36,height:36,borderRadius:'50%',border:`2.5px solid ${W.green}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <span style={{fontFamily:F.serif,fontSize:13,color:W.green,fontWeight:400}}>3<span style={{fontSize:8,color:W.muted}}>/3</span></span>
+        </div>
+        <div>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:2}}>SATURDAY, JUN 6</div>
+          <div style={{fontFamily:F.serif,fontSize:15,color:W.fg}}>Your <span style={{fontStyle:'italic',color:W.green}}>habits</span></div>
+          <div style={{fontFamily:F.sans,fontSize:8,color:W.green}}>✓ All done — great work.</div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:8}}>
+        {[{l:'THIS WEEK',v:'29',c:W.green},{l:'THIS MONTH',v:'33',c:W.violet}].map((s,i)=>(
+          <div key={i} style={{background:CARD,borderRadius:8,padding:'8px 10px',border:`1px solid ${BORDER}`}}>
+            <div style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1,marginBottom:3}}>{s.l}</div>
+            <div style={{fontFamily:F.serif,fontSize:16,color:s.c,lineHeight:1}}>{s.v}<span style={{fontSize:9,color:W.muted}}>%</span></div>
+            <div style={{height:2,background:'rgba(255,255,255,0.08)',borderRadius:1,marginTop:5}}>
+              <div style={{height:'100%',width:`${s.v}%`,background:s.c,borderRadius:1}}/>
+            </div>
+          </div>
         ))}
       </div>
+      <div style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:8,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+          <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1}}>7-DAY VIEW</span>
+          <span style={{fontFamily:F.sans,fontSize:8,color:W.muted}}>2 perfect days</span>
+        </div>
+        <div style={{display:'flex',gap:3,marginBottom:4}}>
+          {dayColors.map((c,i)=>(
+            <div key={i} style={{flex:1,height:16,borderRadius:3,background:c}}/>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:3}}>
+          {days.map((d,i)=>(
+            <div key={i} style={{flex:1,fontFamily:F.mono,fontSize:6,color:W.dim,textAlign:'center'}}>{d}</div>
+          ))}
+        </div>
+      </div>
       {habits.map((h,i)=>(
-        <div key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'8px 0',borderBottom:`1px solid ${W.border}`}}>
-          <div style={{width:18,height:18,borderRadius:5,background:h.done?W.green:'transparent',border:`1px solid ${h.done?W.green:W.borderStrong}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-            {h.done&&<span style={{color:'#0B0805',fontSize:9,fontWeight:700}}>✓</span>}
+        <div key={i} style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:5,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',gap:8}}>
+          <div style={{width:16,height:16,borderRadius:4,background:W.green,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <span style={{color:'#0B0805',fontSize:9,fontWeight:700}}>✓</span>
           </div>
-          <div style={{flex:1,fontFamily:F.sans,fontSize:11,color:h.done?W.muted:W.fg,textDecoration:h.done?'line-through':'none'}}>{h.n}</div>
-          <div style={{display:'flex',alignItems:'center',gap:3}}>
-            <span style={{fontSize:8}}>🔥</span>
-            <span style={{fontFamily:F.mono,fontSize:8.5,color:W.muted}}>{h.streak}d</span>
-          </div>
+          <span style={{fontFamily:F.sans,fontSize:11,color:W.muted,textDecoration:'line-through',flex:1}}>{h.n}</span>
+          <span style={{fontSize:10,color:'rgba(255,255,255,0.2)'}}>×</span>
         </div>
       ))}
     </div>
@@ -405,36 +441,44 @@ function AppScreenHabits(){
 }
 
 function AppScreenOS(){
-  const metrics=[
-    {l:'Identity',v:72,c:W.violet},
-    {l:'Discipline',v:58,c:W.orange},
-    {l:'Focus',v:84,c:W.gold},
-    {l:'Resilience',v:65,c:W.green},
-    {l:'Consistency',v:77,c:'#60C4DD'},
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const goals=['build my business up to 5k','get in shape','build discipline'];
+  const sections=[
+    {icon:'◈',iconBg:'rgba(169,146,232,0.2)',iconColor:W.violet,title:'Identity',sub:'Who you are becoming',text:'I am someone who acts with discipline, stays present, trusts the process, and builds a meaningful life through consistent action.'},
+    {icon:'◆',iconBg:'rgba(249,115,22,0.2)',iconColor:W.orange,title:'Values',sub:'What you stand for',text:'Discipline, authenticity, growth, presence. I do what I say I will do. I value truth over comfort, progress over perfection.'},
+    {icon:'◎',iconBg:'rgba(249,115,22,0.15)',iconColor:W.gold,title:'Vision',sub:'Where you are going',text:'In 3 years, I am physically strong, emotionally grounded, and financially free. I lead successful businesses that create real impact.'},
   ];
   return(
-    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
-      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Your <span style={{fontStyle:'italic',color:W.violet}}>Mental OS</span></div>
-      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:13}}>Identity under construction</div>
-      <div style={{background:W.surface,borderRadius:10,padding:'10px 12px',marginBottom:12,border:`1px solid ${W.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-        <div>
-          <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:3}}>OVERALL SCORE</div>
-          <div style={{fontFamily:F.serif,fontSize:26,color:W.orange,lineHeight:1}}>71<span style={{fontSize:12,color:W.muted}}>/100</span></div>
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans,overflowY:'auto'}}>
+      <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.5,marginBottom:5}}>SYSTEM</div>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:2}}>your <span style={{fontStyle:'italic',color:W.violet}}>Mental OS</span></div>
+      <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginBottom:11}}>Tap any section to edit</div>
+      <div style={{background:CARD,borderRadius:10,padding:'9px 11px',marginBottom:7,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:8}}>
+          <span style={{fontSize:9}}>🎯</span>
+          <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2,flex:1}}>YOUR GOALS</span>
+          <span style={{fontFamily:F.sans,fontSize:8,color:W.orange,background:'rgba(249,115,22,0.15)',padding:'2px 7px',borderRadius:4}}>✎ Edit</span>
         </div>
-        <div style={{textAlign:'right'}}>
-          <div style={{fontFamily:F.mono,fontSize:7,color:W.green,letterSpacing:1}}>↑ +12 THIS WEEK</div>
-          <div style={{fontFamily:F.sans,fontSize:9,color:W.muted,marginTop:2}}>Day 14 of reset</div>
-        </div>
+        {goals.map((g,i)=>(
+          <div key={i} style={{display:'flex',gap:7,marginBottom:i<2?5:0}}>
+            <span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:0.5,flexShrink:0}}>0{i+1}</span>
+            <span style={{fontFamily:F.sans,fontSize:9.5,color:W.fg}}>{g}</span>
+          </div>
+        ))}
       </div>
-      {metrics.map((m,i)=>(
-        <div key={i} style={{marginBottom:10}}>
-          <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
-            <span style={{fontFamily:F.sans,fontSize:11,color:W.fgDim}}>{m.l}</span>
-            <span style={{fontFamily:F.mono,fontSize:10,color:m.c,fontWeight:600}}>{m.v}</span>
+      {sections.map((s,i)=>(
+        <div key={i} style={{background:CARD,borderRadius:10,padding:'9px 11px',marginBottom:6,border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+            <div style={{width:22,height:22,borderRadius:6,background:s.iconBg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:10,color:s.iconColor}}>{s.icon}</div>
+            <div style={{flex:1}}>
+              <div style={{fontFamily:F.serif,fontSize:11,color:W.fg,fontStyle:'italic'}}>{s.title}</div>
+              <div style={{fontFamily:F.sans,fontSize:7.5,color:W.muted}}>{s.sub}</div>
+            </div>
+            <span style={{fontSize:10,color:W.muted}}>›</span>
           </div>
-          <div style={{height:3,background:W.surfaceRaised,borderRadius:2}}>
-            <div style={{height:'100%',width:`${m.v}%`,background:m.c,borderRadius:2}}/>
-          </div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.fgDim,lineHeight:1.45}}>{s.text}</div>
         </div>
       ))}
     </div>
@@ -442,24 +486,36 @@ function AppScreenOS(){
 }
 
 function AppScreenStats(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const questions=[
+    'What was my biggest win this week?',
+    'What did I learn about myself?',
+    'Where did I act out of alignment with my identity?',
+    'What is the one thing I will focus on next week?',
+  ];
   return(
-    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
-      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Weekly <span style={{fontStyle:'italic',color:W.gold}}>review</span></div>
-      <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1,marginBottom:13}}>WEEK 2 · JUNE 2026</div>
-      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:11}}>
-        {[{l:'Habits done',v:'42',sub:'of 56 total',c:W.green},{l:'Streak',v:'14d',sub:'personal best',c:W.orange},{l:'XP earned',v:'2,840',sub:'this week',c:W.gold},{l:'OS score',v:'+12',sub:'points gained',c:W.violet}].map((s,i)=>(
-          <div key={i} style={{background:W.surface,borderRadius:8,padding:9,border:`1px solid ${W.border}`}}>
-            <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:0.8,marginBottom:3}}>{s.l.toUpperCase()}</div>
-            <div style={{fontFamily:F.serif,fontSize:19,color:s.c,lineHeight:1}}>{s.v}</div>
-            <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>{s.sub}</div>
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans}}>
+      <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.5,marginBottom:5}}>REVIEW</div>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:2}}>Weekly <span style={{fontStyle:'italic',color:W.orange}}>Reset</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9,color:W.muted,marginBottom:10}}>June 6, 2026</div>
+      <div style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:9,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:5}}>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1}}>THIS WEEK</span>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted}}>0/5</span>
+        </div>
+        <div style={{height:2,background:'rgba(255,255,255,0.08)',borderRadius:1}}/>
+      </div>
+      {questions.map((q,i)=>(
+        <div key={i} style={{background:CARD,borderRadius:8,padding:'9px 10px',marginBottom:6,border:`1px solid ${BORDER}`}}>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1,marginBottom:5}}>0{i+1}</div>
+          <div style={{fontFamily:F.serif,fontSize:10,color:W.fg,fontStyle:'italic',marginBottom:6,lineHeight:1.4}}>{q}</div>
+          <div style={{height:26,background:'rgba(255,255,255,0.04)',borderRadius:5,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',paddingLeft:8}}>
+            <span style={{fontFamily:F.sans,fontSize:8,color:W.dim}}>Write your reflection...</span>
           </div>
-        ))}
-      </div>
-      <div style={{background:W.surface,borderRadius:10,padding:11,border:`1px solid ${W.border}`}}>
-        <div style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1,marginBottom:7}}>WEEKLY REFLECTION</div>
-        <div style={{fontFamily:F.sans,fontSize:10,color:W.fgDim,lineHeight:1.5,marginBottom:8}}>What was your biggest win this week? What pattern did you notice?</div>
-        <div style={{height:22,background:W.surfaceRaised,borderRadius:4,border:`1px solid ${W.border}`}}/>
-      </div>
+        </div>
+      ))}
     </div>
   );
 }
@@ -903,10 +959,10 @@ function PDFShowcase(){
 // ── App Screenshots ───────────────────────────────────────────────────────
 
 const APP_SCREENS=[
-  {label:'Dashboard · Today',sublabel:'Daily Mantra, Streak & XP',Comp:AppScreenToday},
-  {label:'Habits Tracker',sublabel:'Daily check-ins & streaks',Comp:AppScreenHabits},
-  {label:'Mental OS',sublabel:'Identity scores & progress',Comp:AppScreenOS},
-  {label:'Weekly Review',sublabel:'Reflection & reset ritual',Comp:AppScreenStats},
+  {label:'Dashboard · Today',sublabel:'AI Mantra · Streak · XP · Quick nav',Comp:AppScreenToday,color:W.orange},
+  {label:'Habit Tracker',sublabel:'Daily check-ins · 7-day view · Calendar',Comp:AppScreenHabits,color:W.green},
+  {label:'Mental OS',sublabel:'Goals · Identity · Values · Vision',Comp:AppScreenOS,color:W.violet},
+  {label:'Weekly Reset',sublabel:'5 reflection questions · Weekly review',Comp:AppScreenStats,color:W.gold},
 ];
 
 function PhoneShell({children,color=W.orange}){
@@ -1057,65 +1113,14 @@ function AppPreview(){
   function switchTab(i){if(i===active)return;setActive(i);setAnimKey(k=>k+1);}
 
   const screens=[
-    {label:'Today',color:W.orange,content:(
-      <div style={{padding:'20px 16px'}}>
-        <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.6,marginBottom:8}}>SUNDAY · MAY 24</div>
-        <div style={{fontFamily:F.serif,fontSize:22,color:W.fg,marginBottom:4}}>Good morning, <span style={{fontStyle:'italic',color:W.orange}}>you.</span></div>
-        <div style={{fontFamily:F.sans,fontSize:12,color:W.fgDim,marginBottom:20}}>Day 14 of your mental reset</div>
-        <div style={{background:W.surfaceWarm,borderRadius:12,padding:16,marginBottom:12,border:`1px solid ${W.border}`}}>
-          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}>
-            {WIcon.sparkle(14,W.gold)}
-            <span style={{fontFamily:F.mono,fontSize:9,color:W.gold,letterSpacing:1.4}}>TODAY'S AI MANTRA</span>
-          </div>
-          <div style={{fontFamily:F.serif,fontStyle:'italic',fontSize:14,color:W.fg,lineHeight:1.5}}>"Discipline isn't what you do when you feel like it. It's what you do when you don't."</div>
-        </div>
-        <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
-          {[{l:'Streak',v:'14d',c:W.orange,i:WIcon.flame(14,W.orange)},{l:'XP today',v:'+340',c:W.gold,i:WIcon.bolt(14,W.gold)}].map((s,i)=>(
-            <div key={i} style={{background:W.surface,borderRadius:10,padding:12,border:`1px solid ${W.border}`}}>
-              <div style={{display:'flex',alignItems:'center',gap:6,marginBottom:4}}>{s.i}<span style={{fontFamily:F.mono,fontSize:8,color:W.muted,letterSpacing:1.2}}>{s.l}</span></div>
-              <div style={{fontFamily:F.serif,fontSize:22,color:s.c}}>{s.v}</div>
-            </div>
-          ))}
-        </div>
-      </div>
-    )},
-    {label:'Habits',color:W.green,content:(
-      <div style={{padding:'20px 16px'}}>
-        <div style={{fontFamily:F.serif,fontSize:20,color:W.fg,marginBottom:16}}>Your <span style={{fontStyle:'italic',color:W.green}}>habits</span></div>
-        {[{n:'Meditation',done:true,streak:14},{n:'Exercise',done:true,streak:9},{n:'Read 30min',done:false,streak:6},{n:'No scroll AM',done:false,streak:3}].map((h,i)=>(
-          <div key={i} style={{display:'flex',alignItems:'center',gap:12,padding:'10px 0',borderBottom:`1px solid ${W.border}`}}>
-            <div style={{width:22,height:22,borderRadius:6,background:h.done?W.green:W.surface,border:h.done?'none':`1px solid ${W.borderStrong}`,display:'flex',alignItems:'center',justifyContent:'center',animation:h.done&&i<2?'check-bounce 0.4s ease both':'none',animationDelay:`${i*100}ms`}}>
-              {h.done&&WIcon.check(11,'#0B0805',3)}
-            </div>
-            <div style={{flex:1}}>
-              <div style={{fontFamily:F.sans,fontSize:13,color:h.done?W.fgDim:W.fg,textDecoration:h.done?'line-through':'none'}}>{h.n}</div>
-            </div>
-            <div style={{display:'flex',alignItems:'center',gap:4}}>
-              {WIcon.flame(11,W.orange)}
-              <span style={{fontFamily:F.mono,fontSize:10,color:W.muted}}>{h.streak}d</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    )},
-    {label:'Mental OS',color:W.violet,content:(
-      <div style={{padding:'20px 16px'}}>
-        <div style={{fontFamily:F.serif,fontSize:20,color:W.fg,marginBottom:4}}>Your <span style={{fontStyle:'italic',color:W.violet}}>Mental OS</span></div>
-        <div style={{fontFamily:F.sans,fontSize:12,color:W.fgDim,marginBottom:20}}>Identity under construction</div>
-        {[{l:'Identity',v:72,c:W.violet},{l:'Discipline',v:58,c:W.orange},{l:'Focus',v:84,c:W.gold},{l:'Resilience',v:65,c:W.green}].map((s,i)=>(
-          <div key={i} style={{marginBottom:14}}>
-            <div style={{display:'flex',justifyContent:'space-between',marginBottom:6}}>
-              <span style={{fontFamily:F.sans,fontSize:12,color:W.fgDim}}>{s.l}</span>
-              <span style={{fontFamily:F.mono,fontSize:11,color:s.c}}>{s.v}</span>
-            </div>
-            <div style={{height:3,background:W.surface,borderRadius:2}}>
-              <div style={{height:'100%',background:s.c,borderRadius:2,'--w':`${s.v}%`,animation:`bar-grow 0.8s ${i*120}ms cubic-bezier(.22,1,.36,1) both`}}/>
-            </div>
-          </div>
-        ))}
-      </div>
-    )},
+    {label:'Today',color:W.orange,Comp:AppScreenToday},
+    {label:'Habits',color:W.green,Comp:AppScreenHabits},
+    {label:'Mental OS',color:W.violet,Comp:AppScreenOS},
+    {label:'Weekly',color:W.gold,Comp:AppScreenStats},
   ];
+
+  const BG='#160f08';
+  const BORDER_PHONE='rgba(255,255,255,0.1)';
 
   return(
     <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,overflow:'hidden'}}>
@@ -1135,27 +1140,33 @@ function AppPreview(){
           </div>
         </div>
         <div ref={phoneRef} className={`reveal-fade${phoneV?' visible':''}`} style={{display:'flex',justifyContent:m?'center':'flex-end',marginTop:m?44:0}}>
-          <div style={{width:m?260:280,background:W.surface,borderRadius:44,border:`1px solid ${W.borderStrong}`,overflow:'hidden',boxShadow:`0 40px 80px rgba(0,0,0,0.6),0 0 0 1px ${W.border},inset 0 1px 0 ${W.borderHi}`,animation:'float-phone 6s ease-in-out infinite'}}>
-            <div style={{padding:'14px 20px 8px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-              <span style={{fontFamily:F.mono,fontSize:11,color:W.fgDim}}>9:41</span>
-              <div style={{display:'flex',gap:5,alignItems:'center'}}>
-                {[4,3,2].map(i=><div key={i} style={{width:3,height:i*3,background:W.fgDim,borderRadius:1}}/>)}
-                <div style={{width:14,height:7,borderRadius:2,border:`1px solid ${W.fgDim}`,marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}><div style={{width:8,height:4,background:W.green,borderRadius:1}}/></div>
+          <div style={{width:m?260:278,background:BG,borderRadius:42,border:`1px solid ${BORDER_PHONE}`,overflow:'hidden',boxShadow:`0 48px 96px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.05)`,animation:'float-phone 6s ease-in-out infinite'}}>
+            {/* Status bar */}
+            <div style={{padding:'12px 18px 6px',display:'flex',justifyContent:'space-between',alignItems:'center',background:BG}}>
+              <span style={{fontFamily:F.mono,fontSize:10,color:'rgba(255,255,255,0.5)'}}>9:41</span>
+              <div style={{display:'flex',gap:4,alignItems:'center'}}>
+                {[4,3,2].map(i=><div key={i} style={{width:2.5,height:i*2.5,background:'rgba(255,255,255,0.4)',borderRadius:1}}/>)}
+                <div style={{width:13,height:6,borderRadius:2,border:'1px solid rgba(255,255,255,0.3)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+                  <div style={{width:8,height:4,background:W.green,borderRadius:1}}/>
+                </div>
               </div>
             </div>
-            <div style={{width:100,height:28,background:W.bg,borderRadius:'0 0 20px 20px',margin:'-4px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
-              <div style={{width:56,height:5,background:W.surfaceWarm,borderRadius:3}}/>
+            {/* Notch */}
+            <div style={{width:80,height:22,background:BG,borderRadius:'0 0 14px 14px',margin:'-2px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:44,height:4,background:'rgba(255,255,255,0.12)',borderRadius:2}}/>
             </div>
-            <div key={animKey} style={{minHeight:340,animation:'slide-screen 0.35s cubic-bezier(.22,1,.36,1) both'}}>
-              {screens[active].content}
+            {/* Screen content */}
+            <div key={animKey} style={{minHeight:360,animation:'slide-screen 0.3s cubic-bezier(.22,1,.36,1) both',overflow:'hidden'}}>
+              {React.createElement(screens[active].Comp)}
             </div>
-            <div style={{display:'flex',justifyContent:'space-around',padding:'12px 0 20px',borderTop:`1px solid ${W.border}`}}>
-              {['Today','Habits','OS','Stats'].map((t,i)=>(
-                <div key={i} onClick={()=>switchTab(Math.min(i,2))} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4,cursor:'pointer',opacity:active===i?1:0.4,transition:'opacity 0.2s'}}>
-                  <div style={{width:20,height:20,borderRadius:5,background:active===i?W.orange:W.surface,display:'flex',alignItems:'center',justifyContent:'center',transition:'background 0.2s'}}>
-                    <div style={{width:8,height:8,borderRadius:1,background:active===i?'#fff':W.muted}}/>
+            {/* Nav bar */}
+            <div style={{display:'flex',justifyContent:'space-around',padding:'10px 0 18px',borderTop:'1px solid rgba(255,255,255,0.06)',background:BG}}>
+              {screens.map((s,i)=>(
+                <div key={i} onClick={()=>switchTab(i)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,cursor:'pointer',transition:'opacity 0.2s'}}>
+                  <div style={{width:28,height:28,borderRadius:8,background:active===i?W.orange:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',transition:'background 0.25s ease'}}>
+                    <div style={{width:10,height:10,borderRadius:2,background:active===i?'#fff':'rgba(255,255,255,0.3)'}}/>
                   </div>
-                  <span style={{fontFamily:F.mono,fontSize:7,color:active===i?W.fg:W.dim,letterSpacing:0.8}}>{t}</span>
+                  <span style={{fontFamily:F.mono,fontSize:6.5,color:active===i?W.fg:'rgba(255,255,255,0.25)',letterSpacing:0.6}}>{s.label}</span>
                 </div>
               ))}
             </div>
