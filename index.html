@@ -749,6 +749,115 @@ function SocialTicker(){
   );
 }
 
+// ── Mantra Update Demo ────────────────────────────────────────────────────
+
+function MantraUpdateDemo(){
+  const[phase,setPhase]=React.useState(0);
+  // 0 = week 1 mantra shown
+  // 1 = completing weekly reset (progress fills)
+  // 2 = generating new mantra (flash)
+  // 3 = week 2 mantra shown
+  const[progress,setProgress]=React.useState(0);
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+
+  React.useEffect(()=>{
+    let t;
+    if(phase===0){t=setTimeout(()=>setPhase(1),2800);}
+    else if(phase===1){
+      setProgress(0);
+      let p=0;
+      const iv=setInterval(()=>{
+        p+=4;
+        setProgress(Math.min(p,100));
+        if(p>=100){clearInterval(iv);setTimeout(()=>setPhase(2),400);}
+      },60);
+      return()=>clearInterval(iv);
+    }
+    else if(phase===2){t=setTimeout(()=>setPhase(3),900);}
+    else if(phase===3){t=setTimeout(()=>{setPhase(0);setProgress(0);},2800);}
+    return()=>clearTimeout(t);
+  },[phase]);
+
+  const mantras=[
+    {week:1,text:'"I act with discipline over doubt, trust myself over validation, and build my future through consistent action."'},
+    {week:2,text:'"Every choice I make today is a vote for the person I am becoming. I choose intentionally and with purpose."'},
+  ];
+  const current=phase<=1?mantras[0]:mantras[1];
+  const isUpdated=phase===3;
+  const isGenerating=phase===2;
+
+  return(
+    <div style={{background:BG,borderRadius:16,padding:'18px',border:`1px solid ${BORDER}`,fontFamily:F.sans}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+        <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1.3}}>YOUR MANTRA</div>
+        <div style={{fontFamily:F.mono,fontSize:7,color:isUpdated?W.green:W.muted,letterSpacing:1,display:'flex',alignItems:'center',gap:4,transition:'color 0.4s'}}>
+          {isUpdated&&<span style={{fontSize:9}}>✦</span>}
+          WEEK {current.week}
+        </div>
+      </div>
+
+      {/* Mantra text */}
+      <div style={{
+        minHeight:72,
+        fontFamily:F.serif,
+        fontStyle:'italic',
+        fontSize:13,
+        color:isGenerating?'transparent':isUpdated?W.orange:W.fg,
+        lineHeight:1.55,
+        marginBottom:14,
+        transition:'color 0.35s ease',
+        position:'relative',
+      }}>
+        {isGenerating?(
+          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <span style={{fontFamily:F.mono,fontSize:9,color:W.gold,letterSpacing:1.5,animation:'pulse-dot 1s ease-in-out infinite'}}>✦</span>
+            <span style={{fontFamily:F.mono,fontSize:8.5,color:W.gold,letterSpacing:1.2}}>Generating week {phase===2?2:1} mantra...</span>
+          </div>
+        ):current.text}
+      </div>
+
+      <div style={{height:1,background:BORDER,marginBottom:14}}/>
+
+      {/* Weekly Reset progress */}
+      <div style={{background:CARD,borderRadius:10,padding:'11px 14px',border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:phase===1?10:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1}}>▦ WEEKLY RESET</span>
+          </div>
+          {phase===0&&<span style={{fontFamily:F.sans,fontSize:9,color:W.muted,fontStyle:'italic'}}>waiting →</span>}
+          {phase===1&&<span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1}}>{Math.round(progress)}%</span>}
+          {(phase===2||phase===3)&&<span style={{fontFamily:F.mono,fontSize:7,color:W.green,letterSpacing:1}}>✓ Done</span>}
+        </div>
+
+        {phase===1&&(
+          <div>
+            <div style={{height:3,background:'rgba(255,255,255,0.06)',borderRadius:2,marginBottom:8,overflow:'hidden'}}>
+              <div style={{height:'100%',width:`${progress}%`,background:`linear-gradient(90deg,${W.orange},${W.gold})`,borderRadius:2,transition:'width 0.1s linear'}}/>
+            </div>
+            {['What was my biggest win?','What did I learn about myself?','Where did I act out of alignment?'].map((q,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:4}}>
+                <div style={{width:12,height:12,borderRadius:3,background:progress>33*(i+1)?W.green:'transparent',border:`1px solid ${progress>33*(i+1)?W.green:BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.3s'}}>
+                  {progress>33*(i+1)&&<span style={{color:'#0B0805',fontSize:7,fontWeight:700,lineHeight:1}}>✓</span>}
+                </div>
+                <span style={{fontFamily:F.sans,fontSize:8.5,color:progress>33*(i+1)?W.muted:W.dim,textDecoration:progress>33*(i+1)?'line-through':'none',transition:'color 0.3s'}}>{q}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {phase===0&&(
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.dim,marginTop:4}}>5 questions · takes 5 minutes</div>
+        )}
+        {(phase===2||phase===3)&&(
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.green,marginTop:4}}>✓ 5/5 questions answered · mantra {isUpdated?'updated':'updating'}...</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Features Bento ────────────────────────────────────────────────────────
 
 function BentoFeatures(){
@@ -813,20 +922,49 @@ function BentoFeatures(){
           {/* Card 2 — App */}
           <div ref={r2} className={`card-lift reveal-fade${v2?' visible':''}`} style={{gridColumn:m?'1':'3',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative',display:'flex',flexDirection:'column'}}>
             <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.orange}50,transparent)`}}/>
-            <div style={{padding:m?'28px 24px':'36px 32px',flex:1,display:'flex',flexDirection:'column'}}>
-              <div style={{width:44,height:44,borderRadius:12,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:16}}>
+            <div style={{padding:m?'28px 24px 16px':'32px 28px 0',display:'flex',flexDirection:'column'}}>
+              <div style={{width:44,height:44,borderRadius:12,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
                 {WIcon.bolt(22,W.orange)}
               </div>
-              <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400,marginBottom:10}}>Mindshift Pro App</div>
-              <p style={{fontFamily:F.sans,fontSize:m?14:14.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px',flex:1}}>
+              <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400,marginBottom:8}}>Mindshift Pro App</div>
+              <p style={{fontFamily:F.sans,fontSize:m?13:14,lineHeight:1.7,color:W.fgDim,margin:'0 0 14px'}}>
                 30 days of full Pro access from day one. Habits, streaks, daily XP and your personalized mental environment in your pocket.
               </p>
-              <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginBottom:24}}>iOS · 30 days Pro included</Tag>
-              <MediaPlaceholder label="App screenshot" sublabel="Home · Today view" aspect="9/16" type="phone" color={W.orange}/>
+              <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginBottom:20}}>iOS · 30 days Pro included</Tag>
+            </div>
+            {/* Real app dashboard in phone shell */}
+            <div style={{display:'flex',justifyContent:'center',padding:'0 20px 28px',marginTop:'auto'}}>
+              <div style={{width:'100%',maxWidth:240,background:'#160f08',borderRadius:32,border:'1px solid rgba(255,255,255,0.1)',overflow:'hidden',boxShadow:`0 24px 48px rgba(0,0,0,0.6),0 0 30px ${W.orange}10`}}>
+                <div style={{padding:'10px 14px 4px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+                  <span style={{fontFamily:F.mono,fontSize:8.5,color:'rgba(255,255,255,0.4)'}}>9:41</span>
+                  <div style={{display:'flex',gap:3,alignItems:'center'}}>
+                    {[4,3,2].map(i=><div key={i} style={{width:2,height:i*2,background:'rgba(255,255,255,0.35)',borderRadius:1}}/>)}
+                    <div style={{width:11,height:5,borderRadius:1.5,border:'1px solid rgba(255,255,255,0.25)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+                      <div style={{width:6,height:3,background:W.green,borderRadius:1}}/>
+                    </div>
+                  </div>
+                </div>
+                <div style={{width:60,height:16,background:'#160f08',borderRadius:'0 0 10px 10px',margin:'-1px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  <div style={{width:32,height:3,background:'rgba(255,255,255,0.1)',borderRadius:2}}/>
+                </div>
+                <div style={{height:340,overflow:'hidden'}}>
+                  <AppScreenToday/>
+                </div>
+                <div style={{display:'flex',justifyContent:'space-around',padding:'8px 0 14px',borderTop:'1px solid rgba(255,255,255,0.06)',background:'#160f08'}}>
+                  {['Today','Habits','OS','Stats'].map((t,i)=>(
+                    <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+                      <div style={{width:22,height:22,borderRadius:6,background:i===0?W.orange:'rgba(255,255,255,0.05)',display:'flex',alignItems:'center',justifyContent:'center'}}>
+                        <div style={{width:8,height:8,borderRadius:2,background:i===0?'#fff':'rgba(255,255,255,0.2)'}}/>
+                      </div>
+                      <span style={{fontFamily:F.mono,fontSize:5.5,color:i===0?W.fg:'rgba(255,255,255,0.2)',letterSpacing:0.5}}>{t}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
 
-          {/* Card 3 — AI Mantra (wide) */}
+          {/* Card 3 — Weekly Mantra (wide) */}
           <div ref={r3} className={`card-lift reveal-fade${v3?' visible':''}`} style={{gridColumn:m?'1':'1/4',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
             <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.gold}50,transparent)`}}/>
             <div style={{padding:m?'28px 24px':'36px 40px',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
@@ -836,20 +974,20 @@ function BentoFeatures(){
                     {WIcon.sparkle(22,W.gold)}
                   </div>
                   <div>
-                    <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400}}>Daily AI Mantra</div>
-                    <Tag color={W.gold} bg="rgba(232,181,96,0.1)" border={`${W.gold}30`} style={{marginTop:4}}>AI · Personalized daily</Tag>
+                    <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400}}>Weekly Mantra</div>
+                    <Tag color={W.gold} bg="rgba(232,181,96,0.1)" border={`${W.gold}30`} style={{marginTop:4}}>AI · Updates with Weekly Reset</Tag>
                   </div>
                 </div>
                 <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px'}}>
-                  Every morning, the AI reads your Mental OS profile and generates a mantra built for exactly where you are today. Not generic inspiration — a precise mental signal calibrated to your identity transformation.
+                  Every week, after you complete your Weekly Reset, the AI reads your Mental OS and generates a new mantra calibrated to exactly where you are. Not generic motivation — a precise signal built from your own answers.
                 </p>
                 <div style={{padding:'16px 20px',borderRadius:12,background:'rgba(232,181,96,0.06)',border:`1px solid ${W.gold}20`,fontFamily:F.serif,fontStyle:'italic',fontSize:m?15:17,color:W.fg,lineHeight:1.55}}>
-                  "Discipline isn't what you do when you feel like it.<br/>It's what you do when you <span style={{color:W.gold}}>don't.</span>"
-                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:10,fontStyle:'normal'}}>AI-GENERATED · TODAY · DAY 14</div>
+                  "I act with discipline over doubt, trust myself over validation, and build my future through consistent action today."
+                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:10,fontStyle:'normal'}}>AI-GENERATED · WEEK 1 · YOUR MENTAL OS</div>
                 </div>
               </div>
               <div style={{marginTop:m?24:0}}>
-                <MediaPlaceholder label="AI Mantra interface" sublabel="Daily mantra · Mental OS integration" aspect="4/3" type="image" color={W.gold}/>
+                <MantraUpdateDemo/>
               </div>
             </div>
           </div>
