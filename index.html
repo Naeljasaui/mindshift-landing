@@ -980,7 +980,7 @@ function PhoneShell({children,color=W.orange}){
       <div style={{width:70,height:20,background:W.bg,borderRadius:'0 0 14px 14px',margin:'-2px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
         <div style={{width:36,height:4,background:W.surfaceWarm,borderRadius:2}}/>
       </div>
-      <div style={{minHeight:380}}>{children}</div>
+      <div style={{height:420,overflow:'hidden'}}>{children}</div>
       <div style={{display:'flex',justifyContent:'space-around',padding:'10px 0 16px',borderTop:`1px solid ${W.border}`,background:W.bg}}>
         {['Today','Habits','OS','Stats'].map((t,i)=>(
           <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
@@ -1156,7 +1156,7 @@ function AppPreview(){
               <div style={{width:44,height:4,background:'rgba(255,255,255,0.12)',borderRadius:2}}/>
             </div>
             {/* Screen content */}
-            <div key={animKey} style={{minHeight:360,animation:'slide-screen 0.3s cubic-bezier(.22,1,.36,1) both',overflow:'hidden'}}>
+            <div key={animKey} style={{height:360,overflow:'hidden',animation:'slide-screen 0.3s cubic-bezier(.22,1,.36,1) both'}}>
               {React.createElement(screens[active].Comp)}
             </div>
             {/* Nav bar */}
