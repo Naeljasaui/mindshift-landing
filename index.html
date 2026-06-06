@@ -620,8 +620,8 @@ function TopNav(){
   const[clicked,setClicked]=React.useState(null);
   const activeSection=clicked||scrollActive;
   const navLinks=[
-    {label:'Features',id:'features'},
-    {label:'The System',id:'pdfs'},
+    {label:'The App',id:'features'},
+    {label:'Screens',id:'app-screens'},
     {label:'The Method',id:'the-method'},
     {label:'Pricing',id:'pricing'},
     {label:'Manifesto',id:'manifesto'},
@@ -860,111 +860,143 @@ function MantraUpdateDemo(){
 
 // ── Features Bento ────────────────────────────────────────────────────────
 
+function MiniPhone({children,activeTab=0}){
+  const PHONE_BG='#160f08';
+  return(
+    <div style={{background:PHONE_BG,borderRadius:32,border:'1px solid rgba(255,255,255,0.1)',overflow:'hidden',boxShadow:`0 32px 64px rgba(0,0,0,0.65),0 0 40px rgba(249,115,22,0.08)`}}>
+      <div style={{padding:'10px 14px 4px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontFamily:F.mono,fontSize:8,color:'rgba(255,255,255,0.4)'}}>9:41</span>
+        <div style={{display:'flex',gap:3,alignItems:'center'}}>
+          {[4,3,2].map(i=><div key={i} style={{width:2,height:i*2,background:'rgba(255,255,255,0.3)',borderRadius:1}}/>)}
+          <div style={{width:11,height:5,borderRadius:1.5,border:'1px solid rgba(255,255,255,0.22)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+            <div style={{width:6,height:3,background:'#5DD39E',borderRadius:1}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{width:56,height:14,background:PHONE_BG,borderRadius:'0 0 9px 9px',margin:'-1px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{width:28,height:3,background:'rgba(255,255,255,0.08)',borderRadius:2}}/>
+      </div>
+      <div style={{height:340,overflow:'hidden'}}>{children}</div>
+      <div style={{display:'flex',justifyContent:'space-around',padding:'7px 0 13px',borderTop:'1px solid rgba(255,255,255,0.05)',background:PHONE_BG}}>
+        {['Today','Habits','OS','Stats'].map((t,i)=>(
+          <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+            <div style={{width:20,height:20,borderRadius:5,background:i===activeTab?'#F97316':'rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center',transition:'background 0.2s'}}>
+              <div style={{width:7,height:7,borderRadius:2,background:i===activeTab?'#fff':'rgba(255,255,255,0.18)'}}/>
+            </div>
+            <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:5.5,color:i===activeTab?'#F5EFE6':'rgba(255,255,255,0.18)',letterSpacing:0.4}}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function BentoFeatures(){
   const m=useIsMobile();
   const[r0,v0]=useReveal(0);
   const[r1,v1]=useReveal(80);
-  const[r2,v2]=useReveal(160);
-  const[r3,v3]=useReveal(240);
+  const[r2,v2]=useReveal(180);
+  const[r3,v3]=useReveal(260);
+  const appFeatures=[
+    {icon:'⊙',color:'#5DD39E',label:'Habit Tracker',desc:'Daily check-ins, streaks & 7-day view'},
+    {icon:'◈',color:'#A992E8',label:'Mental OS',desc:'Goals, identity, values & vision'},
+    {icon:'▦',color:'#F97316',label:'Weekly Reset',desc:'5 reflection questions, weekly review'},
+    {icon:'✦',color:'#E8B560',label:'Weekly Mantra',desc:'AI-generated from your Mental OS'},
+  ];
   return(
     <section id="features" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
       <div style={{maxWidth:MAX,margin:'0 auto'}}>
         <div ref={r0} className={`reveal-el${v0?' visible':''}`} style={{marginBottom:m?40:60}}>
-          <Eyebrow style={{marginBottom:14}}>What's included</Eyebrow>
-          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:68,lineHeight:1.01,letterSpacing:m?-1:-2.2,color:W.fg,margin:'0 0 18px',maxWidth:720}}>
-            Everything you need<br/>to <span style={{fontStyle:'italic',color:W.orange}}>rewrite your OS.</span>
+          <Eyebrow style={{marginBottom:14}}>The app</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:68,lineHeight:1.01,letterSpacing:m?-1:-2.2,color:W.fg,margin:'0 0 18px',maxWidth:760}}>
+            Your identity operating system.<br/><span style={{fontStyle:'italic',color:W.orange}}>In your pocket.</span>
           </h2>
-          <p style={{fontFamily:F.sans,fontSize:m?15:17,lineHeight:1.65,color:W.fgDim,maxWidth:560,margin:0}}>
-            One purchase. Three tools that compound into a transformation system — the manual you should have been given.
+          <p style={{fontFamily:F.sans,fontSize:m?15:17,lineHeight:1.65,color:W.fgDim,maxWidth:580,margin:0}}>
+            The app is where transformation happens every day. Four modules built to compound: habits, identity, weekly review, and an AI mantra that evolves with you.
           </p>
         </div>
 
-        {/* Bento grid */}
-        <div style={{display:'grid',gridTemplateColumns:m?'1fr':m?'1fr':'repeat(3,1fr)',gridTemplateRows:'auto',gap:m?12:14}}>
+        <div style={{display:'grid',gridTemplateColumns:m?'1fr':'repeat(3,1fr)',gap:m?12:14}}>
 
-          {/* Card 1 — Mental OS PDFs (large) */}
-          <div ref={r1} className={`card-lift reveal-fade${v1?' visible':''}`} style={{gridColumn:m?'1':'1/3',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
-            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.violet}50,transparent)`}}/>
-            <div style={{padding:m?'28px 24px 0':'36px 36px 0',position:'relative'}}>
-              <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
-                <div style={{width:44,height:44,borderRadius:12,background:W.violetSoft,border:`1px solid ${W.violet}30`,display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  {WIcon.brain(22,W.violet,1.6)}
+          {/* Card 1 — APP (large, 2 cols) */}
+          <div ref={r1} className={`card-lift reveal-fade${v1?' visible':''}`} style={{gridColumn:m?'1':'1/3',background:W.surface,border:`1px solid ${W.borderStrong}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.orange}60,transparent)`}}/>
+            <div style={{padding:m?'28px 24px':'36px 40px',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:48,alignItems:'center'}}>
+              <div>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
+                  <div style={{width:48,height:48,borderRadius:14,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    {WIcon.bolt(24,W.orange)}
+                  </div>
+                  <div>
+                    <div style={{fontFamily:F.serif,fontSize:m?22:28,color:W.fg,fontWeight:400}}>Mindshift Pro App</div>
+                    <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginTop:5}}>iOS · 30 days Pro included</Tag>
+                  </div>
                 </div>
-                <div>
-                  <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400}}>Mental OS System</div>
-                  <Tag color={W.violet} bg={W.violetSoft} border={`${W.violet}30`} style={{marginTop:4}}>PDF Bundle · Instant delivery</Tag>
+                <p style={{fontFamily:F.sans,fontSize:m?14:16,lineHeight:1.72,color:W.fgDim,margin:'0 0 24px'}}>
+                  Not another productivity app. Four modules that work together to change who you are — built around your identity, not your to-do list.
+                </p>
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  {appFeatures.map((f,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
+                      <div style={{width:32,height:32,borderRadius:9,background:`${f.color}15`,border:`1px solid ${f.color}25`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:13,color:f.color}}>{f.icon}</div>
+                      <div>
+                        <div style={{fontFamily:F.sans,fontSize:13.5,fontWeight:600,color:W.fg,marginBottom:1}}>{f.label}</div>
+                        <div style={{fontFamily:F.sans,fontSize:12,color:W.muted}}>{f.desc}</div>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </div>
-              <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 24px',maxWidth:480}}>
-                The complete framework to map and redesign your mental patterns. Four deep-dive documents with real exercises — no theory, no fluff. Your identity under renovation starts here.
+              <div style={{display:'flex',justifyContent:'center',marginTop:m?32:0,gap:16}}>
+                <div style={{width:m?160:178,animation:'float-phone 6s ease-in-out infinite'}}>
+                  <MiniPhone activeTab={0}><AppScreenToday/></MiniPhone>
+                </div>
+                {!m&&<div style={{width:178,marginTop:32,animation:'float-phone 6s ease-in-out infinite',animationDelay:'1.5s'}}>
+                  <MiniPhone activeTab={1}><AppScreenHabits/></MiniPhone>
+                </div>}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2 — PDFs (compact, 1 col) */}
+          <div ref={r2} className={`card-lift reveal-fade${v2?' visible':''}`} style={{gridColumn:m?'1':'3',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative',display:'flex',flexDirection:'column'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.violet}40,transparent)`}}/>
+            <div style={{padding:m?'28px 24px':'32px 28px',flex:1,display:'flex',flexDirection:'column'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+                <div style={{width:40,height:40,borderRadius:10,background:W.violetSoft,border:`1px solid ${W.violet}25`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  {WIcon.brain(20,W.violet,1.6)}
+                </div>
+                <div>
+                  <div style={{fontFamily:F.serif,fontSize:m?18:20,color:W.fg,fontWeight:400}}>Bonus PDFs</div>
+                  <Tag color={W.violet} bg={W.violetSoft} border={`${W.violet}25`} style={{marginTop:3}}>Included · Instant delivery</Tag>
+                </div>
+              </div>
+              <p style={{fontFamily:F.sans,fontSize:m?13:13.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px',flex:1}}>
+                Two printable documents included with your purchase. Use them alongside the app to anchor your identity work on paper.
               </p>
-              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:28}}>
-                {['Identity Architecture','Discipline Without Motivation','Daily Reset Protocol','Belief System Audit'].map((f,i)=>(
-                  <div key={i} style={{display:'flex',alignItems:'center',gap:8}}>
-                    <div style={{width:16,height:16,borderRadius:4,background:W.violetSoft,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
-                      {WIcon.check(9,W.violet,3)}
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+                {[{icon:'📄',t:'Mental Software',s:'Goals · Identity · Mantra'},{icon:'🔄',t:'Habit Tracker',s:'31-day radial chart'}].map((p,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:W.surfaceRaised,border:`1px solid ${W.border}`}}>
+                    <span style={{fontSize:16}}>{p.icon}</span>
+                    <div>
+                      <div style={{fontFamily:F.sans,fontSize:12.5,fontWeight:600,color:W.fg}}>{p.t}</div>
+                      <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:0.8,marginTop:1}}>{p.s}</div>
                     </div>
-                    <span style={{fontFamily:F.sans,fontSize:13,color:W.fgDim}}>{f}</span>
                   </div>
                 ))}
               </div>
             </div>
-            <div style={{padding:m?'0 24px 24px':'0 36px 32px',display:'grid',gridTemplateColumns:m?'1fr':'1fr 1fr',gap:12}}>
-              <div style={{transform:'rotate(-1.5deg)',transformOrigin:'center bottom',transition:'transform 0.3s ease'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(-1.5deg)'}>
+            <div style={{padding:'0 20px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <div style={{transform:'rotate(-2deg)',transition:'transform 0.3s'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(-2deg)'}>
                 <MentalSoftwarePreview/>
               </div>
-              <div style={{transform:'rotate(1.5deg)',transformOrigin:'center bottom',transition:'transform 0.3s ease'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(1.5deg)'}>
+              <div style={{transform:'rotate(2deg)',marginTop:12,transition:'transform 0.3s'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(2deg)'}>
                 <HabitTrackerPreview/>
               </div>
             </div>
           </div>
 
-          {/* Card 2 — App */}
-          <div ref={r2} className={`card-lift reveal-fade${v2?' visible':''}`} style={{gridColumn:m?'1':'3',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative',display:'flex',flexDirection:'column'}}>
-            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.orange}50,transparent)`}}/>
-            <div style={{padding:m?'28px 24px 16px':'32px 28px 0',display:'flex',flexDirection:'column'}}>
-              <div style={{width:44,height:44,borderRadius:12,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center',marginBottom:14}}>
-                {WIcon.bolt(22,W.orange)}
-              </div>
-              <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400,marginBottom:8}}>Mindshift Pro App</div>
-              <p style={{fontFamily:F.sans,fontSize:m?13:14,lineHeight:1.7,color:W.fgDim,margin:'0 0 14px'}}>
-                30 days of full Pro access from day one. Habits, streaks, daily XP and your personalized mental environment in your pocket.
-              </p>
-              <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginBottom:20}}>iOS · 30 days Pro included</Tag>
-            </div>
-            {/* Real app dashboard in phone shell */}
-            <div style={{display:'flex',justifyContent:'center',padding:'0 20px 28px',marginTop:'auto'}}>
-              <div style={{width:'100%',maxWidth:240,background:'#160f08',borderRadius:32,border:'1px solid rgba(255,255,255,0.1)',overflow:'hidden',boxShadow:`0 24px 48px rgba(0,0,0,0.6),0 0 30px ${W.orange}10`}}>
-                <div style={{padding:'10px 14px 4px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
-                  <span style={{fontFamily:F.mono,fontSize:8.5,color:'rgba(255,255,255,0.4)'}}>9:41</span>
-                  <div style={{display:'flex',gap:3,alignItems:'center'}}>
-                    {[4,3,2].map(i=><div key={i} style={{width:2,height:i*2,background:'rgba(255,255,255,0.35)',borderRadius:1}}/>)}
-                    <div style={{width:11,height:5,borderRadius:1.5,border:'1px solid rgba(255,255,255,0.25)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
-                      <div style={{width:6,height:3,background:W.green,borderRadius:1}}/>
-                    </div>
-                  </div>
-                </div>
-                <div style={{width:60,height:16,background:'#160f08',borderRadius:'0 0 10px 10px',margin:'-1px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                  <div style={{width:32,height:3,background:'rgba(255,255,255,0.1)',borderRadius:2}}/>
-                </div>
-                <div style={{height:340,overflow:'hidden'}}>
-                  <AppScreenToday/>
-                </div>
-                <div style={{display:'flex',justifyContent:'space-around',padding:'8px 0 14px',borderTop:'1px solid rgba(255,255,255,0.06)',background:'#160f08'}}>
-                  {['Today','Habits','OS','Stats'].map((t,i)=>(
-                    <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
-                      <div style={{width:22,height:22,borderRadius:6,background:i===0?W.orange:'rgba(255,255,255,0.05)',display:'flex',alignItems:'center',justifyContent:'center'}}>
-                        <div style={{width:8,height:8,borderRadius:2,background:i===0?'#fff':'rgba(255,255,255,0.2)'}}/>
-                      </div>
-                      <span style={{fontFamily:F.mono,fontSize:5.5,color:i===0?W.fg:'rgba(255,255,255,0.2)',letterSpacing:0.5}}>{t}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Card 3 — Weekly Mantra (wide) */}
+          {/* Card 3 — Weekly Mantra (full width) */}
           <div ref={r3} className={`card-lift reveal-fade${v3?' visible':''}`} style={{gridColumn:m?'1':'1/4',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
             <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.gold}50,transparent)`}}/>
             <div style={{padding:m?'28px 24px':'36px 40px',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
@@ -986,9 +1018,7 @@ function BentoFeatures(){
                   <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:10,fontStyle:'normal'}}>AI-GENERATED · WEEK 1 · YOUR MENTAL OS</div>
                 </div>
               </div>
-              <div style={{marginTop:m?24:0}}>
-                <MantraUpdateDemo/>
-              </div>
+              <div style={{marginTop:m?24:0}}><MantraUpdateDemo/></div>
             </div>
           </div>
 
@@ -1078,13 +1108,13 @@ function PDFShowcase(){
       <AnimatedGlow top={-100} left={'60%'} w={600} h={500} color={W.violet} opacity={0.06} blur={24} which="c"/>
       <div style={{maxWidth:MAX,margin:'0 auto',position:'relative'}}>
         <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?12:0}}>
-          <Eyebrow style={{marginBottom:14}}>The Mental OS System</Eyebrow>
+          <Eyebrow style={{marginBottom:14}}>Included with your purchase</Eyebrow>
           <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
             <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:'0 0 16px',maxWidth:640}}>
-              Two documents.<br/><span style={{fontStyle:'italic',color:W.orange}}>One complete rewire.</span>
+              Two documents.<br/><span style={{fontStyle:'italic',color:W.orange}}>Included free.</span>
             </h2>
             <p style={{fontFamily:F.sans,fontSize:m?15:16,lineHeight:1.65,color:W.muted,maxWidth:500,margin:'0 0 0 -60px',paddingBottom:m?0:8}}>
-              Delivered instantly to your inbox after purchase. No waiting, no manual steps — start your reset the same day.
+              Both PDFs land in your inbox the moment you purchase — no waiting, no manual steps. Use them alongside the app to anchor your transformation on paper too.
             </p>
           </div>
         </div>
@@ -1733,10 +1763,10 @@ function App(){
       <Hero onWatchPreview={()=>setShowVideo(true)}/>
       <SocialTicker/>
       <BentoFeatures/>
-      <PDFShowcase/>
       <AppScreenshots/>
-      <VideoSection onWatchPreview={()=>setShowVideo(true)}/>
       <AppPreview/>
+      <VideoSection onWatchPreview={()=>setShowVideo(true)}/>
+      <PDFShowcase/>
       <HowItWorks/>
       <Testimonials/>
       <Manifesto/>
