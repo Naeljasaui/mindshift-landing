@@ -544,7 +544,7 @@ function VideoModal({onClose}){
             </div>
             <div style={{textAlign:'center'}}>
               <div style={{fontFamily:F.serif,fontSize:30,color:W.fg,marginBottom:8}}>Preview coming soon</div>
-              <div style={{fontFamily:F.sans,fontSize:15,color:W.muted}}>The app preview video launches soon</div>
+              <div style={{fontFamily:F.sans,fontSize:15,color:W.muted}}>The system walkthrough video launches soon</div>
             </div>
           </div>
         )}
@@ -555,7 +555,7 @@ function VideoModal({onClose}){
 
 const LEGAL_CONTENT={
   privacy:{title:'Privacy Notice',updated:'May 2026',body:[
-    {h:'What we collect',t:'When you purchase, we collect your email address, name, and payment information (processed securely by Paddle — we never see your card details). When you use the app, we collect usage data such as habit completions, streaks, and session activity to power your Mental OS.'},
+    {h:'What we collect',t:'When you purchase, we collect your email address, name, and payment information (processed securely by Paddle — we never see your card details). When you use the dashboard, we collect usage data such as habit completions, streaks, and session activity to power your Mental OS.'},
     {h:'How we use it',t:'Your email is used to deliver your PDFs, send your daily AI Mantra, and communicate important account updates. Usage data powers your personal dashboard and AI-generated content. We do not sell your data to third parties.'},
     {h:'Third-party services',t:'We use Paddle (payments), Supabase (database & authentication), Resend (transactional email), and Anthropic (AI mantra generation). Each operates under their own privacy policy and processes only the data necessary for their function.'},
     {h:'Your rights',t:'You can request deletion of your account and data at any time by emailing support@mindshiftlabs.lat. We will process your request within 30 days.'},
@@ -563,8 +563,8 @@ const LEGAL_CONTENT={
   ]},
   terms:{title:'Terms of Service',updated:'May 2026',body:[
     {h:'Acceptance',t:'By purchasing or using Mindshift Labs, you agree to these terms. If you do not agree, do not use the service.'},
-    {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift app. You may not redistribute, resell, or share access with others.'},
-    {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro app access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the app or by contacting us.'},
+    {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift dashboard. You may not redistribute, resell, or share access with others.'},
+    {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro dashboard access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the dashboard or by contacting us.'},
     {h:'Cancellation',t:'Canceling your subscription stops future charges. You retain access until the end of your current billing period. The PDFs remain yours permanently after purchase.'},
     {h:'Limitation of liability',t:'Mindshift Labs provides tools and content for personal development. We make no guarantee of specific results. Our liability is limited to the amount you paid.'},
     {h:'Contact',t:'For any questions: support@mindshiftlabs.lat'},
@@ -730,7 +730,7 @@ const TICKER_ITEMS=[
   '⚡ "The daily mantra hits different when it\'s personalized."',
   '◎ "14 habits in a row. Never thought I\'d say that."',
   '🔥 "I used to need motivation. Now I just have identity."',
-  '✦ "Cancelled every other app. Just use this one."',
+  '✦ "Cancelled every other tool. Just use this system."',
   '🧠 "Best $25 I spent on myself this year."',
 ];
 
@@ -907,12 +907,12 @@ function BentoFeatures(){
     <section id="features" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
       <div style={{maxWidth:MAX,margin:'0 auto'}}>
         <div ref={r0} className={`reveal-el${v0?' visible':''}`} style={{marginBottom:m?40:60}}>
-          <Eyebrow style={{marginBottom:14}}>The app</Eyebrow>
+          <Eyebrow style={{marginBottom:14}}>The system</Eyebrow>
           <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:68,lineHeight:1.01,letterSpacing:m?-1:-2.2,color:W.fg,margin:'0 0 18px',maxWidth:760}}>
-            Your identity operating system.<br/><span style={{fontStyle:'italic',color:W.orange}}>In your pocket.</span>
+            Your identity operating system.<br/><span style={{fontStyle:'italic',color:W.orange}}>On the web.</span>
           </h2>
           <p style={{fontFamily:F.sans,fontSize:m?15:17,lineHeight:1.65,color:W.fgDim,maxWidth:580,margin:0}}>
-            The app is where transformation happens every day. Four modules built to compound: habits, identity, weekly review, and an AI mantra that evolves with you.
+            The dashboard is where transformation happens every day. Four modules built to compound: habits, identity, weekly review, and a mantra that evolves with you.
           </p>
         </div>
 
@@ -928,12 +928,12 @@ function BentoFeatures(){
                     {WIcon.bolt(24,W.orange)}
                   </div>
                   <div>
-                    <div style={{fontFamily:F.serif,fontSize:m?22:28,color:W.fg,fontWeight:400}}>Mindshift Pro App</div>
-                    <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginTop:5}}>iOS · 30 days Pro included</Tag>
+                    <div style={{fontFamily:F.serif,fontSize:m?22:28,color:W.fg,fontWeight:400}}>Mindshift Dashboard</div>
+                    <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginTop:5}}>Web · 30 days Pro included</Tag>
                   </div>
                 </div>
                 <p style={{fontFamily:F.sans,fontSize:m?14:16,lineHeight:1.72,color:W.fgDim,margin:'0 0 24px'}}>
-                  Not another productivity app. Four modules that work together to change who you are — built around your identity, not your to-do list.
+                  Not another productivity tool. Four modules that work together to change who you are — built around your identity, not your to-do list.
                 </p>
                 <div style={{display:'flex',flexDirection:'column',gap:12}}>
                   {appFeatures.map((f,i)=>(
@@ -972,7 +972,7 @@ function BentoFeatures(){
                 </div>
               </div>
               <p style={{fontFamily:F.sans,fontSize:m?13:13.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px',flex:1}}>
-                Two printable documents included with your purchase. Use them alongside the app to anchor your identity work on paper.
+                Two printable documents included with your purchase. Use them alongside the dashboard to anchor your identity work on paper.
               </p>
               <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
                 {[{icon:'📄',t:'Mental Software',s:'Goals · Identity · Mantra'},{icon:'🔄',t:'Habit Tracker',s:'31-day radial chart'}].map((p,i)=>(
@@ -1114,7 +1114,7 @@ function PDFShowcase(){
               Two documents.<br/><span style={{fontStyle:'italic',color:W.orange}}>Included free.</span>
             </h2>
             <p style={{fontFamily:F.sans,fontSize:m?15:16,lineHeight:1.65,color:W.muted,maxWidth:500,margin:'0 0 0 -60px',paddingBottom:m?0:8}}>
-              Both PDFs land in your inbox the moment you purchase — no waiting, no manual steps. Use them alongside the app to anchor your transformation on paper too.
+              Both PDFs land in your inbox the moment you purchase — no waiting, no manual steps. Use them alongside the dashboard to anchor your transformation on paper too.
             </p>
           </div>
         </div>
@@ -1186,13 +1186,13 @@ function AppScreenshots(){
     <section id="app-screens" style={{padding:m?'80px 0':'120px 32px',borderTop:`1px solid ${W.border}`,overflow:'hidden'}}>
       <div style={{maxWidth:MAX,margin:'0 auto'}}>
         <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{padding:m?'0 20px':0,marginBottom:m?36:52}}>
-          <Eyebrow style={{marginBottom:14}}>Inside the app</Eyebrow>
+          <Eyebrow style={{marginBottom:14}}>Inside the dashboard</Eyebrow>
           <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
             <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:0}}>
               Your daily environment<br/>for <span style={{fontStyle:'italic',color:W.orange}}>transformation.</span>
             </h2>
             {!m&&<p style={{fontFamily:F.sans,fontSize:16,lineHeight:1.65,color:W.muted,maxWidth:360,margin:0,paddingBottom:8}}>
-              Not another productivity app — the system that changes who you are at the identity level.
+              Not another productivity tool — the system that changes who you are at the identity level.
             </p>}
           </div>
         </div>
@@ -1257,7 +1257,7 @@ function VideoSection({onWatchPreview}){
           onMouseEnter={e=>{e.currentTarget.style.transform='scale(1.01)';e.currentTarget.style.boxShadow=`0 48px 100px rgba(0,0,0,0.6),0 0 60px rgba(249,115,22,0.08)`;}}
           onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';e.currentTarget.style.boxShadow=`0 40px 80px rgba(0,0,0,0.5)`;}}
         >
-          <MediaPlaceholder label="App walkthrough video" sublabel="Full Mindshift experience · ~3 min" aspect="16/9" type="video" large color={W.orange}/>
+          <MediaPlaceholder label="Dashboard walkthrough video" sublabel="Full Mindshift system · ~3 min" aspect="16/9" type="video" large color={W.orange}/>
           <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
             <div style={{width:m?64:80,height:m?64:80,borderRadius:'50%',background:'rgba(11,8,5,0.8)',border:`1px solid ${W.borderStrong}`,backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 8px 32px rgba(0,0,0,0.5),0 0 0 1px ${W.border}`,transition:'transform 0.2s ease,background 0.2s'}}>
               {WIcon.play(m?28:36,W.orange)}
@@ -1299,7 +1299,7 @@ function AppPreview(){
             Every screen built<br/>for <span style={{fontStyle:'italic',color:W.orange}}>one thing.</span>
           </h2>
           <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 28px'}}>
-            Every screen inside Mindshift is designed to reinforce one thing: who you're becoming. Habits, XP, a daily AI Mantra — all wired to your identity.
+            Every screen inside the Mindshift dashboard is designed to reinforce one thing: who you're becoming. Habits, XP, a weekly mantra — all wired to your identity.
           </p>
           <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
             {screens.map((s,i)=>(
@@ -1370,8 +1370,8 @@ function HowItWorks(){
   const[hRef,hV]=useReveal(0);
   const steps=[
     {n:'01',icon:WIcon.bolt(14,W.orange),title:'Pay $25 — everything arrives in minutes',desc:'Secure checkout via Paddle. Immediately after payment you receive an email with direct download links to all Mental OS PDFs. Fully automated — no waiting, no manual steps, no support tickets.'},
-    {n:'02',icon:WIcon.phone(14,W.orange),title:'Download the app and sign in with your email',desc:'The app is free to download. Sign in with the same email you used to purchase, create your password, and you\'re in — Pro access activated automatically from the first login.'},
-    {n:'03',icon:WIcon.flame(14,W.orange),title:'30 days to rewrite your identity',desc:'Full app access, all PDFs, and a personalized AI Mantra every morning. At the end of day 30, Paddle charges $9/month automatically. Cancel anytime from inside the app — no friction, no hidden steps.'},
+    {n:'02',icon:WIcon.phone(14,W.orange),title:'Access your dashboard and sign in with your email',desc:'Go to app.mindshiftlabs.lat, sign in with the same email you used to purchase, create your password, and you\'re in — Pro access activated automatically from the first login.'},
+    {n:'03',icon:WIcon.flame(14,W.orange),title:'30 days to rewrite your identity',desc:'Full dashboard access, all PDFs, and a personalized mantra every week. At the end of day 30, Paddle charges $9/month automatically. Cancel anytime from the dashboard — no friction, no hidden steps.'},
   ];
   return(
     <section id="the-method" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
@@ -1402,15 +1402,15 @@ const TESTIMONIALS=[
   {name:'Ana L.',role:'Designer & Creator',stars:5,text:'The weekly review alone changed how I operate. I used to drift from one week to the next. Now I have a ritual that keeps me honest, intentional and actually moving.'},
   {name:'Marcus T.',role:'Software Engineer',stars:5,text:'Finally a mental fitness tool that doesn\'t feel like a chore. The design is clean, the philosophy is solid. I\'ve hit 14 habits in a row. Never thought I\'d say that.'},
   {name:'Sofia R.',role:'Entrepreneur',stars:5,text:'The Mental OS PDF hit me hard. I realized I was operating from beliefs I never consciously chose. Three weeks in and I feel like I finally understand myself. Worth every dollar.'},
-  {name:'Daniel K.',role:'Personal Trainer',stars:5,text:'I recommend this to every client who asks me about mindset. The habit tracker combined with the app is a system that actually sticks. Not just motivation — real behavior change.'},
-  {name:'Camille V.',role:'Marketing Director',stars:4,text:'I was skeptical at first. But the daily AI mantra actually hits different when it\'s built from your own goals. By week two I stopped needing reminders to open the app.'},
+  {name:'Daniel K.',role:'Personal Trainer',stars:5,text:'I recommend this to every client who asks me about mindset. The habit tracker combined with the dashboard is a system that actually sticks. Not just motivation — real behavior change.'},
+  {name:'Camille V.',role:'Marketing Director',stars:4,text:'I was skeptical at first. But the weekly mantra actually hits different when it\'s built from your own goals. By week two I stopped needing reminders to open the dashboard.'},
   {name:'Ryan S.',role:'Student & Creator',stars:5,text:'I\'m 22 and this is the first time I\'ve gone 21 days without breaking a habit streak. The XP system makes it feel like a game but the results are completely real.'},
   {name:'Priya N.',role:'Product Manager',stars:5,text:'The Weekly Reset is the feature I didn\'t know I needed. Five questions, ten minutes, and suddenly my entire week makes sense. My focus has never been sharper.'},
   {name:'Carlos D.',role:'Freelance Designer',stars:5,text:'I\'ve tried journals, apps, coaching. Nothing lasted more than two weeks. This is day 31 for me. Something about building from identity instead of willpower just works.'},
   {name:'Emma W.',role:'Life Coach',stars:5,text:'I recommend Mindshift to clients who need structure without rigidity. The Mental OS gives them language to talk about who they\'re becoming. Transformation starts with identity.'},
   {name:'Liam O.',role:'Sales Executive',stars:4,text:'The streak counter alone keeps me accountable. I\'ve missed one day in six weeks. For someone who used to quit everything after three days, that\'s a miracle.'},
   {name:'Natalia F.',role:'Yoga Instructor',stars:5,text:'What I love is that it doesn\'t push productivity for productivity\'s sake. It asks who you want to become first. The habits follow naturally from that clarity.'},
-  {name:'James R.',role:'Tech Lead',stars:5,text:'The PDF bundle alone is worth the $25. I\'ve read books on identity and behavior change that said less. Clear, practical, no fluff. And the app makes you actually apply it daily.'},
+  {name:'James R.',role:'Tech Lead',stars:5,text:'The PDF bundle alone is worth the $25. I\'ve read books on identity and behavior change that said less. Clear, practical, no fluff. And the dashboard makes you actually apply it daily.'},
   {name:'Isabela C.',role:'Content Creator',stars:5,text:'Cancelled three other subscriptions after buying Mindshift. I don\'t need a task manager anymore. I need to know who I am and stay consistent with it. This does exactly that.'},
   {name:'Noah B.',role:'Athlete & Coach',stars:5,text:'I run mental performance programs for athletes and started using this myself. The identity framework in the PDF is exactly what elite performers need. Simple. Powerful. Real.'},
   {name:'Valentina G.',role:'Startup Founder',stars:5,text:'Day 45 of using Mindshift. My morning routine is locked in. My weekly reviews keep me honest. And the mantra hits right when I need it. Building something real has never felt this grounded.'},
@@ -1534,7 +1534,7 @@ function Manifesto(){
   const m=useIsMobile();
   const lines=[
     "We don't believe in motivation. We believe in systems.",
-    "We didn't build another productivity app. We built the environment where transformation actually happens.",
+    "We didn't build another productivity tool. We built the environment where transformation actually happens.",
     "Your problem was never discipline. It's that nobody taught you how to operate your own mind.",
     "Mindshift is the manual you should have been given.",
   ];
@@ -1560,7 +1560,7 @@ function Pricing(){
   const[cRef,cV]=useReveal(200);
   const includes=[
     'Complete Mental OS System — 4 PDFs delivered instantly to your inbox',
-    '30 days of Pro access to the iOS app from the first login',
+    '30 days of Pro access to the web dashboard from the first login',
     'Personalized AI Mantra generated every single morning',
     'Habit tracking + streaks + XP system for daily progress',
     'Personal Mental OS dashboard with identity scores',
@@ -1623,11 +1623,11 @@ function FAQ(){
   const[hRef,hV]=useReveal(0);
   const items=[
     {q:'How do I receive the PDFs?',a:'Immediately after payment you receive an email with direct download links to all Mental OS documents. Fully automated — no waiting, no manual delivery, no support needed.'},
-    {q:'How do I access the app?',a:"Download Mindshift Labs for free from the App Store, sign in with the same email you used to purchase, create your password, and you're in — Pro access activated automatically from the first login."},
-    {q:'What happens after 30 days?',a:'The $9/month subscription activates automatically via Paddle. You can cancel anytime from inside the app — no friction, no hidden steps, no calls with a sales team.'},
+    {q:'How do I access the dashboard?',a:"Go to app.mindshiftlabs.lat in any browser, sign in with the same email you used to purchase, create your password, and you're in — Pro access activated automatically from the first login. No download required."},
+    {q:'What happens after 30 days?',a:'The $9/month subscription activates automatically via Paddle. You can cancel anytime from inside the dashboard — no friction, no hidden steps, no calls with a sales team.'},
     {q:'What countries can purchase?',a:'Any country in the world. We accept all major international credit and debit cards and local payment methods. Payments processed by Paddle, a global payments platform.'},
     {q:'Is there a money-back guarantee?',a:"Yes. If within the first 7 days it's not right for you, we'll refund you in full — no questions asked. Email support@mindshiftlabs.lat and we process within 3-5 business days."},
-    {q:'Does it work on Android?',a:'iOS only for now. Android is in development and will be available to all existing Pro users at no extra cost when it launches.'},
+    {q:'Does it work on any device?',a:'Yes — the dashboard is fully web-based. It works on any device with a browser: desktop, tablet, or mobile. No download required.'},
   ];
   return(
     <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
@@ -1698,7 +1698,7 @@ function Footer({onOpenLegal}){
       {t:'The System',href:'#pdfs'},
       {t:'The Method',href:'#the-method'},
       {t:'Pricing',href:'#pricing'},
-      {t:'iOS App',href:'#app-screens'},
+      {t:'Dashboard',href:'#app-screens'},
     ]},
     {h:'COMPANY',l:[
       {t:'Manifesto',href:'#manifesto'},
