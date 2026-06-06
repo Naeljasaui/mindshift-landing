@@ -1457,7 +1457,7 @@ function Testimonials(){
     const track=trackRef.current;
     if(!track)return;
     let lastTs=null;
-    const speed=0.4; // px per ms
+    const speed=0.1; // px per ms
     function step(ts){
       if(!lastTs)lastTs=ts;
       const dt=ts-lastTs;
