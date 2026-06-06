@@ -250,6 +250,220 @@ function MediaPlaceholder({label,sublabel,aspect='16/9',type='image',large=false
   );
 }
 
+// ── PDF Previews ─────────────────────────────────────────────────────────
+
+function HabitTrackerSVG(){
+  const cx=140,cy=140,rIn=24,rOut=110,rings=8,days=31,totalAngle=270;
+  const rStep=(rOut-rIn)/rings,dStep=totalAngle/days;
+  function xy(r,deg){const rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];}
+  function sector(r1,r2,a1,a2){
+    const[x1,y1]=xy(r1,a1),[x2,y2]=xy(r1,a2),[x3,y3]=xy(r2,a2),[x4,y4]=xy(r2,a1);
+    const lg=(a2-a1)>180?1:0;
+    return `M${x1},${y1} A${r1},${r1} 0 ${lg} 1 ${x2},${y2} L${x3},${y3} A${r2},${r2} 0 ${lg} 0 ${x4},${y4}Z`;
+  }
+  const cells=[],labels=[],habitLines=[];
+  for(let r=0;r<rings;r++){
+    for(let d=0;d<days;d++){
+      const a1=dStep*d,a2=dStep*(d+1);
+      cells.push(sector(rIn+rStep*r,rIn+rStep*(r+1),a1,a2));
+    }
+    const midY=cy-(rIn+rStep*(r+0.5));
+    habitLines.push({x1:cx-66,y1:midY,x2:cx,y2:midY});
+  }
+  for(let d=0;d<days;d++){
+    const[lx,ly]=xy(rOut+11,dStep*(d+0.5));
+    labels.push({x:lx,y:ly,n:d+1});
+  }
+  return(
+    <svg width="100%" viewBox="0 0 275 265" style={{display:'block'}}>
+      {cells.map((d,i)=><path key={i} d={d} fill="#fff" stroke="#444" strokeWidth="0.45"/>)}
+      {habitLines.map((l,i)=><line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#444" strokeWidth="0.45"/>)}
+      {labels.map((l,i)=><text key={i} x={l.x} y={l.y} fontSize="7" textAnchor="middle" dominantBaseline="middle" fill="#333" fontFamily="Arial,sans-serif">{l.n}</text>)}
+    </svg>
+  );
+}
+
+function HabitTrackerPreview(){
+  return(
+    <div style={{background:'#fff',borderRadius:10,padding:'20px 18px 16px',fontFamily:'Arial,sans-serif',color:'#1a1a1a',boxShadow:'0 16px 56px rgba(0,0,0,0.55)',width:'100%'}}>
+      <div style={{textAlign:'center',marginBottom:8,fontWeight:700,fontSize:12,letterSpacing:2,fontFamily:'Georgia,serif',textTransform:'uppercase'}}>
+        Month: <span style={{fontWeight:400,borderBottom:'1px solid #555',paddingBottom:1,letterSpacing:1}}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div style={{textAlign:'center',fontSize:8.5,lineHeight:1.5,color:'#444',marginBottom:10,fontStyle:'italic',padding:'0 8px'}}>
+        "The habits you develop determine your future. Change your habits and you'll change your life." — <strong style={{fontStyle:'normal'}}>Brian Tracy</strong>
+      </div>
+      <HabitTrackerSVG/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:8}}>
+        {['THINGS TO IMPROVE','THINGS TO BE GRATEFUL'].map((t,i)=>(
+          <div key={i} style={{border:'1px solid #444',borderRadius:4,padding:'8px 10px',minHeight:64}}>
+            <div style={{fontSize:7.5,fontWeight:700,letterSpacing:0.8,marginBottom:4}}>{t}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MentalSoftwarePreview(){
+  return(
+    <div style={{background:'#fff',borderRadius:10,padding:'22px 20px',fontFamily:'Arial,sans-serif',color:'#1a1a1a',boxShadow:'0 16px 56px rgba(0,0,0,0.55)',width:'100%'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div style={{textDecoration:'underline',fontWeight:700,fontSize:14,letterSpacing:2,fontFamily:'Georgia,serif',textTransform:'uppercase'}}>Mental Software</div>
+        <div style={{width:30,height:30,borderRadius:'50%',border:'2.5px solid #F5C842',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:16}}>🙂</div>
+      </div>
+      <div style={{textAlign:'center',fontWeight:700,fontSize:10,letterSpacing:1.5,marginBottom:10,textTransform:'uppercase'}}>Goals</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
+        {[0,1,2].map(i=>(
+          <div key={i} style={{border:'2px solid #1a1a1a',borderRadius:14,height:68}}/>
+        ))}
+      </div>
+      <div style={{border:'1px solid #1a1a1a',borderRadius:4,padding:'10px',marginBottom:10,minHeight:80}}>
+        <div style={{textAlign:'center',fontWeight:700,fontSize:9,letterSpacing:0.5,marginBottom:3}}>WHO DO I WANT TO BECOME?</div>
+        <div style={{textAlign:'center',fontSize:8,color:'#555'}}>(identity)</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+        {["Limiting Patterns I'm Breaking","Daily Mantra"].map((t,i)=>(
+          <div key={i} style={{border:'1px solid #1a1a1a',borderRadius:4,padding:'8px 10px',minHeight:68}}>
+            <div style={{fontWeight:700,fontSize:8,letterSpacing:0.3,marginBottom:4}}>{t}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── App Screen Mockups ────────────────────────────────────────────────────
+
+function AppScreenToday(){
+  return(
+    <div style={{background:W.bg,height:'100%',padding:'16px 14px',display:'flex',flexDirection:'column',gap:0}}>
+      <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1.5,marginBottom:6}}>SUNDAY · JUNE 1 · 2026</div>
+      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:2,lineHeight:1.2}}>Good morning, <span style={{fontStyle:'italic',color:W.orange}}>you.</span></div>
+      <div style={{fontFamily:F.sans,fontSize:10,color:W.muted,marginBottom:13}}>Day 14 of your mental reset</div>
+      <div style={{background:W.surfaceWarm,borderRadius:10,padding:11,marginBottom:9,border:`1px solid ${W.border}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:6}}>
+          <span style={{fontSize:9,color:W.gold}}>✦</span>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.gold,letterSpacing:1.3}}>TODAY'S AI MANTRA</span>
+        </div>
+        <div style={{fontFamily:F.serif,fontStyle:'italic',fontSize:11,color:W.fg,lineHeight:1.45}}>"Your identity is the sum of your choices. Choose deliberately."</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:9}}>
+        {[{l:'Streak',v:'14d',c:W.orange,e:'🔥'},{l:'XP Today',v:'+340',c:W.gold,e:'⚡'}].map((s,i)=>(
+          <div key={i} style={{background:W.surface,borderRadius:8,padding:9,border:`1px solid ${W.border}`}}>
+            <div style={{fontSize:10,marginBottom:2}}>{s.e}</div>
+            <div style={{fontFamily:F.serif,fontSize:18,color:s.c,lineHeight:1}}>{s.v}</div>
+            <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginTop:2}}>{s.l}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:W.surface,borderRadius:10,padding:10,border:`1px solid ${W.border}`}}>
+        <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:7}}>TODAY'S HABITS</div>
+        {[{n:'Meditation',d:true},{n:'Exercise',d:true},{n:'Read 30min',d:false}].map((h,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'center',gap:8,padding:'5px 0',borderBottom:i<2?`1px solid ${W.border}`:'none'}}>
+            <div style={{width:15,height:15,borderRadius:4,background:h.d?W.green:'transparent',border:`1px solid ${h.d?W.green:W.borderStrong}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+              {h.d&&<span style={{color:'#0B0805',fontSize:9,fontWeight:700,lineHeight:1}}>✓</span>}
+            </div>
+            <span style={{fontFamily:F.sans,fontSize:10.5,color:h.d?W.muted:W.fg,textDecoration:h.d?'line-through':'none'}}>{h.n}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AppScreenHabits(){
+  const habits=[
+    {n:'Meditation',streak:14,done:true},
+    {n:'Exercise',streak:9,done:true},
+    {n:'Read 30min',streak:6,done:false},
+    {n:'No scroll AM',streak:3,done:false},
+    {n:'Cold shower',streak:1,done:false},
+  ];
+  return(
+    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
+      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Your <span style={{fontStyle:'italic',color:W.green}}>habits</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:13}}>June 2026 · 14-day streak 🔥</div>
+      <div style={{display:'flex',gap:6,marginBottom:13}}>
+        {['All','Done','Pending'].map((f,i)=>(
+          <div key={i} style={{padding:'4px 10px',borderRadius:999,background:i===0?W.orangeSoft:'transparent',border:`1px solid ${i===0?W.orange:W.border}`,fontFamily:F.mono,fontSize:7.5,color:i===0?W.orange:W.muted,letterSpacing:0.8}}>{f}</div>
+        ))}
+      </div>
+      {habits.map((h,i)=>(
+        <div key={i} style={{display:'flex',alignItems:'center',gap:9,padding:'8px 0',borderBottom:`1px solid ${W.border}`}}>
+          <div style={{width:18,height:18,borderRadius:5,background:h.done?W.green:'transparent',border:`1px solid ${h.done?W.green:W.borderStrong}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            {h.done&&<span style={{color:'#0B0805',fontSize:9,fontWeight:700}}>✓</span>}
+          </div>
+          <div style={{flex:1,fontFamily:F.sans,fontSize:11,color:h.done?W.muted:W.fg,textDecoration:h.done?'line-through':'none'}}>{h.n}</div>
+          <div style={{display:'flex',alignItems:'center',gap:3}}>
+            <span style={{fontSize:8}}>🔥</span>
+            <span style={{fontFamily:F.mono,fontSize:8.5,color:W.muted}}>{h.streak}d</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AppScreenOS(){
+  const metrics=[
+    {l:'Identity',v:72,c:W.violet},
+    {l:'Discipline',v:58,c:W.orange},
+    {l:'Focus',v:84,c:W.gold},
+    {l:'Resilience',v:65,c:W.green},
+    {l:'Consistency',v:77,c:'#60C4DD'},
+  ];
+  return(
+    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
+      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Your <span style={{fontStyle:'italic',color:W.violet}}>Mental OS</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:13}}>Identity under construction</div>
+      <div style={{background:W.surface,borderRadius:10,padding:'10px 12px',marginBottom:12,border:`1px solid ${W.border}`,display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <div>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:3}}>OVERALL SCORE</div>
+          <div style={{fontFamily:F.serif,fontSize:26,color:W.orange,lineHeight:1}}>71<span style={{fontSize:12,color:W.muted}}>/100</span></div>
+        </div>
+        <div style={{textAlign:'right'}}>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.green,letterSpacing:1}}>↑ +12 THIS WEEK</div>
+          <div style={{fontFamily:F.sans,fontSize:9,color:W.muted,marginTop:2}}>Day 14 of reset</div>
+        </div>
+      </div>
+      {metrics.map((m,i)=>(
+        <div key={i} style={{marginBottom:10}}>
+          <div style={{display:'flex',justifyContent:'space-between',marginBottom:4}}>
+            <span style={{fontFamily:F.sans,fontSize:11,color:W.fgDim}}>{m.l}</span>
+            <span style={{fontFamily:F.mono,fontSize:10,color:m.c,fontWeight:600}}>{m.v}</span>
+          </div>
+          <div style={{height:3,background:W.surfaceRaised,borderRadius:2}}>
+            <div style={{height:'100%',width:`${m.v}%`,background:m.c,borderRadius:2}}/>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AppScreenStats(){
+  return(
+    <div style={{background:W.bg,height:'100%',padding:'16px 14px'}}>
+      <div style={{fontFamily:F.serif,fontSize:18,color:W.fg,marginBottom:3}}>Weekly <span style={{fontStyle:'italic',color:W.gold}}>review</span></div>
+      <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1,marginBottom:13}}>WEEK 2 · JUNE 2026</div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:11}}>
+        {[{l:'Habits done',v:'42',sub:'of 56 total',c:W.green},{l:'Streak',v:'14d',sub:'personal best',c:W.orange},{l:'XP earned',v:'2,840',sub:'this week',c:W.gold},{l:'OS score',v:'+12',sub:'points gained',c:W.violet}].map((s,i)=>(
+          <div key={i} style={{background:W.surface,borderRadius:8,padding:9,border:`1px solid ${W.border}`}}>
+            <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:0.8,marginBottom:3}}>{s.l.toUpperCase()}</div>
+            <div style={{fontFamily:F.serif,fontSize:19,color:s.c,lineHeight:1}}>{s.v}</div>
+            <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>{s.sub}</div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:W.surface,borderRadius:10,padding:11,border:`1px solid ${W.border}`}}>
+        <div style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1,marginBottom:7}}>WEEKLY REFLECTION</div>
+        <div style={{fontFamily:F.sans,fontSize:10,color:W.fgDim,lineHeight:1.5,marginBottom:8}}>What was your biggest win this week? What pattern did you notice?</div>
+        <div style={{height:22,background:W.surfaceRaised,borderRadius:4,border:`1px solid ${W.border}`}}/>
+      </div>
+    </div>
+  );
+}
+
 // ── Modals ────────────────────────────────────────────────────────────────
 
 function VideoModal({onClose}){
@@ -530,8 +744,13 @@ function BentoFeatures(){
                 ))}
               </div>
             </div>
-            <div style={{padding:m?'0 24px 24px':'0 36px 32px'}}>
-              <MediaPlaceholder label="PDF covers & inside pages" sublabel="Mental OS System — 4 documents" aspect={m?'16/7':'16/6'} type="pdf" color={W.violet}/>
+            <div style={{padding:m?'0 24px 24px':'0 36px 32px',display:'grid',gridTemplateColumns:m?'1fr':'1fr 1fr',gap:12}}>
+              <div style={{transform:'rotate(-1.5deg)',transformOrigin:'center bottom',transition:'transform 0.3s ease'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(-1.5deg)'}>
+                <MentalSoftwarePreview/>
+              </div>
+              <div style={{transform:'rotate(1.5deg)',transformOrigin:'center bottom',transition:'transform 0.3s ease'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(1.5deg)'}>
+                <HabitTrackerPreview/>
+              </div>
             </div>
           </div>
 
@@ -590,84 +809,68 @@ function BentoFeatures(){
 const PDFS=[
   {
     n:'01',
-    title:'Identity Architecture',
-    tag:'Mental OS · Core',
+    title:'Mental Software',
+    tag:'Identity · Goals · Daily Mantra',
     color:W.violet,
-    desc:'Most people operate from an identity they never chose. This document gives you the tools to map your current mental architecture — the beliefs, narratives, and automatic responses running your life — and redesign them with intention.',
+    desc:'Your monthly identity operating manual. Define your goals, declare who you\'re becoming, name the limiting patterns you\'re breaking, and anchor your daily mantra. One structured page — your entire mental direction for the month.',
     features:[
-      'The Identity Mapping Exercise — audit who you actually are vs. who you\'re pretending to be',
-      'Core Belief Deconstruction — find the roots of your patterns and pull them out',
-      'The Self-Concept Rebuild Framework — build the identity that matches your goals',
-      'Pattern Interrupt Protocols — break automatic responses before they run',
+      'Goals Section — 3 goal slots to define your monthly direction with full clarity',
+      '"Who Do I Want to Become?" — write your identity declaration in your own words',
+      'Limiting Patterns I\'m Breaking — name and dismantle what has been running you',
+      'Daily Mantra — the sentence that recalibrates your mind every single morning',
     ],
+    PreviewComp:MentalSoftwarePreview,
   },
   {
     n:'02',
-    title:'Discipline Without Motivation',
-    tag:'Mental OS · Systems',
+    title:'Habit Tracker',
+    tag:'31 Days · 8 Habits · Radial Chart',
     color:W.orange,
-    desc:'Motivation is a feeling. Discipline is a system. This document teaches you to stop waiting to feel like doing the work and start building an environment and routine structure that makes the right behavior the automatic default.',
+    desc:'A 31-day radial tracker for up to 8 simultaneous habits. Each day is a segment, each habit a concentric ring. Fill it as you go. By month\'s end, you have a complete visual record of your discipline — every gap visible, every streak earned.',
     features:[
-      'The Discipline Loop — how identity creates action without willpower',
-      'Environment Design Protocol — engineer your space to make discipline effortless',
-      'The 21-Day Installation Sequence — how new behaviors become permanent',
-      'The Identity-Action Bridge — close the gap between who you are and what you do',
+      '31-day radial chart — see your full month pattern at a single glance',
+      'Track up to 8 habits simultaneously in the same circular layout',
+      'Things to Improve — set your growth focus areas for the month ahead',
+      'Things to be Grateful — anchor your mindset in what is already working',
     ],
-  },
-  {
-    n:'03',
-    title:'Daily Reset Protocol',
-    tag:'Mental OS · Rituals',
-    color:W.gold,
-    desc:'Your morning and evening are the bookends of transformation. This document gives you the exact ritual framework used inside the app — structured sequences that anchor your identity and compound silently over time.',
-    features:[
-      'Morning Reset Sequence — the 20-minute framework that sets the tone for every day',
-      'Evening Integration Protocol — process the day and wire in the lessons',
-      'Weekly Review Architecture — the Friday ritual that keeps you honest and intentional',
-      'Mental Load Clearing — offload cognitive noise so you can operate at full capacity',
-    ],
+    PreviewComp:HabitTrackerPreview,
   },
 ];
 
 function PDFRow({pdf,idx,m}){
   const even=idx%2===0;
-  const[rImg,vImg]=useReveal(100);
-  const[rContent,vContent]=useReveal(200);
+  const[rImg,vImg]=useReveal(80);
+  const[rContent,vContent]=useReveal(180);
   const soft=pdf.color==='#F97316'?'rgba(249,115,22,0.12)':pdf.color==='#A992E8'?'rgba(169,146,232,0.12)':'rgba(232,181,96,0.12)';
   const softBorder=pdf.color==='#F97316'?'rgba(249,115,22,0.2)':pdf.color==='#A992E8'?'rgba(169,146,232,0.2)':'rgba(232,181,96,0.2)';
   const content=(
-    <div ref={rContent} className={`reveal-${even&&!m?'left':'right'}-el${vContent?' visible':''}`} style={{display:'flex',flexDirection:'column',justifyContent:'center',paddingTop:m?0:8}}>
-      <div style={{display:'inline-flex',alignItems:'center',gap:8,marginBottom:20}}>
-        <span style={{fontFamily:F.serif,fontSize:44,color:softBorder,lineHeight:1,fontWeight:400}}>{pdf.n}</span>
-        <div>
-          <Tag color={pdf.color} bg={soft} border={softBorder}>{pdf.tag}</Tag>
-        </div>
+    <div ref={rContent} className={`reveal-${even&&!m?'left':'right'}-el${vContent?' visible':''}`} style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:10,marginBottom:20}}>
+        <span style={{fontFamily:F.serif,fontSize:48,color:softBorder,lineHeight:1,fontWeight:400}}>{pdf.n}</span>
+        <Tag color={pdf.color} bg={soft} border={softBorder}>{pdf.tag}</Tag>
       </div>
-      <h3 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?28:42,lineHeight:1.05,letterSpacing:m?-0.5:-1.2,color:W.fg,margin:'0 0 16px'}}>
-        {pdf.title}
-      </h3>
-      <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.72,color:W.fgDim,margin:'0 0 28px'}}>
-        {pdf.desc}
-      </p>
+      <h3 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?28:44,lineHeight:1.04,letterSpacing:m?-0.5:-1.2,color:W.fg,margin:'0 0 16px'}}>{pdf.title}</h3>
+      <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.72,color:W.fgDim,margin:'0 0 28px'}}>{pdf.desc}</p>
       <div style={{display:'flex',flexDirection:'column',gap:12}}>
         {pdf.features.map((f,i)=>(
           <div key={i} style={{display:'flex',alignItems:'flex-start',gap:12}}>
             <div style={{width:20,height:20,borderRadius:6,background:soft,border:`1px solid ${softBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
               {WIcon.check(10,pdf.color,2.8)}
             </div>
-            <span style={{fontFamily:F.sans,fontSize:m?13:14,lineHeight:1.6,color:W.fgDim}}>{f}</span>
+            <span style={{fontFamily:F.sans,fontSize:m?13:14.5,lineHeight:1.6,color:W.fgDim}}>{f}</span>
           </div>
         ))}
       </div>
     </div>
   );
+  const PreviewComp=pdf.PreviewComp;
   const image=(
-    <div ref={rImg} className={`reveal-scale-el${vImg?' visible':''}`}>
-      <MediaPlaceholder label={`PDF ${pdf.n} — ${pdf.title}`} sublabel="Inside pages, exercises & framework" aspect={m?'16/9':'3/4'} type="pdf" large={!m} color={pdf.color}/>
+    <div ref={rImg} className={`reveal-scale-el${vImg?' visible':''}`} style={{maxWidth:m?'100%':420,margin:'0 auto',width:'100%'}}>
+      <PreviewComp/>
     </div>
   );
   return(
-    <div style={{display:m?'flex':'grid',flexDirection:m?'column':'undefined',gridTemplateColumns:m?undefined:'1fr 1fr',gap:m?28:70,alignItems:'center',padding:m?'48px 0':'72px 0',borderBottom:`1px solid ${W.border}`}}>
+    <div style={{display:m?'flex':'grid',flexDirection:m?'column':undefined,gridTemplateColumns:m?undefined:'1fr 1fr',gap:m?32:72,alignItems:'center',padding:m?'52px 0':'80px 0',borderBottom:`1px solid ${W.border}`}}>
       {m?<>{image}{content}</>:even?<>{image}{content}</>:<>{content}{image}</>}
     </div>
   );
@@ -700,11 +903,57 @@ function PDFShowcase(){
 // ── App Screenshots ───────────────────────────────────────────────────────
 
 const APP_SCREENS=[
-  {label:'Dashboard · Today',sublabel:'Daily Mantra, Streak & XP',color:W.orange},
-  {label:'Habits Tracker',sublabel:'Daily check-ins & streaks',color:W.green},
-  {label:'Mental OS Dashboard',sublabel:'Identity scores & progress',color:W.violet},
-  {label:'Weekly Review',sublabel:'Reflection & reset ritual',color:W.gold},
+  {label:'Dashboard · Today',sublabel:'Daily Mantra, Streak & XP',Comp:AppScreenToday},
+  {label:'Habits Tracker',sublabel:'Daily check-ins & streaks',Comp:AppScreenHabits},
+  {label:'Mental OS',sublabel:'Identity scores & progress',Comp:AppScreenOS},
+  {label:'Weekly Review',sublabel:'Reflection & reset ritual',Comp:AppScreenStats},
 ];
+
+function PhoneShell({children,color=W.orange}){
+  return(
+    <div style={{background:W.surface,borderRadius:36,border:`1px solid ${W.borderStrong}`,overflow:'hidden',boxShadow:`0 32px 64px rgba(0,0,0,0.65),0 0 0 1px ${W.border},0 0 40px ${color}15`,position:'relative'}}>
+      <div style={{padding:'10px 16px 6px',display:'flex',justifyContent:'space-between',alignItems:'center',background:W.bg,borderBottom:`1px solid ${W.border}`}}>
+        <span style={{fontFamily:F.mono,fontSize:9,color:W.fgDim}}>9:41</span>
+        <div style={{display:'flex',gap:4,alignItems:'center'}}>
+          {[4,3,2].map(i=><div key={i} style={{width:2.5,height:i*2.5,background:W.fgDim,borderRadius:1}}/>)}
+          <div style={{width:12,height:6,borderRadius:2,border:`1px solid ${W.fgDim}`,marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+            <div style={{width:7,height:3.5,background:W.green,borderRadius:1}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{width:70,height:20,background:W.bg,borderRadius:'0 0 14px 14px',margin:'-2px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{width:36,height:4,background:W.surfaceWarm,borderRadius:2}}/>
+      </div>
+      <div style={{minHeight:380}}>{children}</div>
+      <div style={{display:'flex',justifyContent:'space-around',padding:'10px 0 16px',borderTop:`1px solid ${W.border}`,background:W.bg}}>
+        {['Today','Habits','OS','Stats'].map((t,i)=>(
+          <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
+            <div style={{width:18,height:18,borderRadius:4,background:W.surface,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:7,height:7,borderRadius:1,background:W.muted}}/>
+            </div>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.dim,letterSpacing:0.6}}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ScreenCard({s,i}){
+  const[r,v]=useReveal(i*90);
+  const Comp=s.Comp;
+  return(
+    <div ref={r} className={`reveal-scale-el${v?' visible':''}`}>
+      <PhoneShell color={s.color||W.orange}>
+        <Comp/>
+      </PhoneShell>
+      <div style={{marginTop:14,paddingLeft:2}}>
+        <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg}}>{s.label}</div>
+        <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:3}}>{s.sublabel}</div>
+      </div>
+    </div>
+  );
+}
 
 function AppScreenshots(){
   const m=useIsMobile();
@@ -715,7 +964,7 @@ function AppScreenshots(){
         <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{padding:m?'0 20px':0,marginBottom:m?36:52}}>
           <Eyebrow style={{marginBottom:14}}>Inside the app</Eyebrow>
           <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
-            <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:'0 0 m?14px:0'}}>
+            <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:0}}>
               Your daily environment<br/>for <span style={{fontStyle:'italic',color:W.orange}}>transformation.</span>
             </h2>
             {!m&&<p style={{fontFamily:F.sans,fontSize:16,lineHeight:1.65,color:W.muted,maxWidth:360,margin:0,paddingBottom:8}}>
@@ -723,35 +972,26 @@ function AppScreenshots(){
             </p>}
           </div>
         </div>
-
         {m?(
-          /* Mobile: horizontal scroll */
           <div className="screenshot-scroll" style={{padding:'0 20px 16px'}}>
-            {APP_SCREENS.map((s,i)=>(
-              <div key={i} className="screenshot-item" style={{width:220}}>
-                <MediaPlaceholder label={s.label} sublabel={s.sublabel} aspect="9/19.5" type="phone" color={s.color}/>
-                <div style={{marginTop:10,paddingLeft:4}}>
-                  <div style={{fontFamily:F.sans,fontSize:12,fontWeight:600,color:W.fg}}>{s.label}</div>
-                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:2}}>{s.sublabel}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ):(
-          /* Desktop: 4-column grid */
-          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:16}}>
             {APP_SCREENS.map((s,i)=>{
-              const[r,v]=useReveal(i*80);
+              const Comp=s.Comp;
               return(
-                <div key={i} ref={r} className={`reveal-scale-el${v?' visible':''}`}>
-                  <MediaPlaceholder label={s.label} sublabel={s.sublabel} aspect="9/19.5" type="phone" large color={s.color}/>
-                  <div style={{marginTop:14,paddingLeft:2}}>
-                    <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg}}>{s.label}</div>
-                    <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:3}}>{s.sublabel}</div>
+                <div key={i} className="screenshot-item" style={{width:200}}>
+                  <PhoneShell>
+                    <Comp/>
+                  </PhoneShell>
+                  <div style={{marginTop:10,paddingLeft:4}}>
+                    <div style={{fontFamily:F.sans,fontSize:12,fontWeight:600,color:W.fg}}>{s.label}</div>
+                    <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:2}}>{s.sublabel}</div>
                   </div>
                 </div>
               );
             })}
+          </div>
+        ):(
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20}}>
+            {APP_SCREENS.map((s,i)=><ScreenCard key={i} s={s} i={i}/>)}
           </div>
         )}
       </div>
