@@ -162,7 +162,7 @@ function useCountUp(target,active,duration=1400){
 
 function openCheckout(){
   if(typeof Paddle==='undefined')return;
-  Paddle.Checkout.open({items:[{priceId:PRICE_PACK,quantity:1}],settings:{displayMode:'overlay',theme:'dark',locale:'en'},successUrl:'https://app.mindshiftlabs.lat/signup'});
+  Paddle.Checkout.open({items:[{priceId:PRICE_PACK,quantity:1},{priceId:PRICE_SUB,quantity:1}],settings:{displayMode:'overlay',theme:'dark',locale:'en'},successUrl:'https://app.mindshiftlabs.lat/signup'});
 }
 
 // ── Icons ─────────────────────────────────────────────────────────────────
