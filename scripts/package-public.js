@@ -9,6 +9,7 @@ const FILES = [
   'refunds.html',
   'robots.txt',
   'sitemap.xml',
+  'og-image.png',
 ]
 
 fs.rmSync('public', { recursive: true, force: true })
