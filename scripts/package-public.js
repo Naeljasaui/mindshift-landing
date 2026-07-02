@@ -12,8 +12,16 @@ const FILES = [
   'og-image.png',
 ]
 
-fs.rmSync('public', { recursive: true, force: true })
+// Don't rm the directory itself — on Windows an open handle (e.g. a local
+// dev server) makes that EPERM. Overwriting the files is enough.
 fs.mkdirSync('public/assets', { recursive: true })
+
+// Clean stale files that are no longer part of the site
+for (const f of fs.readdirSync('public')) {
+  if (f !== 'assets' && !FILES.includes(f)) {
+    try { fs.rmSync(`public/${f}`, { recursive: true, force: true }) } catch {}
+  }
+}
 
 for (const f of FILES) {
   fs.copyFileSync(f, `public/${f}`)
