@@ -4,7 +4,7 @@
   "private": true,
   "description": "Mindshift Labs landing page — static build",
   "scripts": {
-    "build": "babel src/app.jsx --presets @babel/preset-react --minified --out-file assets/app.js"
+    "build": "babel src/app.jsx --presets @babel/preset-react --minified --out-file assets/app.js && node scripts/package-public.js"
   },
   "devDependencies": {
     "@babel/cli": "^7.28.0",
