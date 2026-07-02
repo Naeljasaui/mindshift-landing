@@ -1,0 +1,1686 @@
+const W={
+  bg:'#0B0805',surface:'#14100B',surfaceRaised:'#1B1611',surfaceWarm:'#241B14',
+  border:'rgba(245,239,230,0.06)',borderStrong:'rgba(245,239,230,0.12)',borderHi:'rgba(245,239,230,0.18)',
+  fg:'#F5EFE6',fgDim:'#C9BFB0',muted:'#8A7F70',dim:'#5A4F44',faint:'#3A322B',
+  orange:'#F97316',orangeDeep:'#C24A0A',orangeSoft:'rgba(249,115,22,0.14)',
+  gold:'#E8B560',violet:'#A992E8',violetSoft:'rgba(169,146,232,0.14)',
+  green:'#5DD39E',red:'#FF7A8A',
+};
+const F={
+  serif:"'Instrument Serif','New York',Georgia,serif",
+  sans:"'Geist','Inter',system-ui,-apple-system,sans-serif",
+  mono:"'JetBrains Mono',ui-monospace,'SF Mono',monospace",
+};
+
+const PRICE_PACK='pri_01kse29m0mqgz7a4vw2wsqkyvs';
+const PRICE_SUB='pri_01kse2kx281zafyyw46kzczasj';
+const PADDLE_TOKEN='live_33120c8ba6c31f03ad8da6a395f';
+const MAX=1240;
+const PREVIEW_VIDEO_ID='PjyMxANVbKw';
+
+// ── Hooks ──────────────────────────────────────────────────────────────────
+
+function useIsMobile(bp=760){
+  const[m,setM]=React.useState(typeof window!=='undefined'&&window.innerWidth<bp);
+  React.useEffect(()=>{const f=()=>setM(window.innerWidth<bp);window.addEventListener('resize',f);return()=>window.removeEventListener('resize',f);},[bp]);
+  return m;
+}
+
+function useActiveSection(ids){
+  const[active,setActive]=React.useState('');
+  React.useEffect(()=>{
+    const obs=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)setActive(e.target.id);});},{rootMargin:'-30% 0px -60% 0px'});
+    ids.forEach(id=>{const el=document.getElementById(id);if(el)obs.observe(el);});
+    return()=>obs.disconnect();
+  },[]);
+  return active;
+}
+
+function useReveal(delay=0){
+  const ref=React.useRef(null);
+  const[v,setV]=React.useState(false);
+  React.useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){setTimeout(()=>setV(true),delay);obs.disconnect();}},{threshold:0.1});
+    obs.observe(el);return()=>obs.disconnect();
+  },[delay]);
+  return[ref,v];
+}
+
+function useRevealDir(dir='up',delay=0){
+  const ref=React.useRef(null);
+  const[v,setV]=React.useState(false);
+  React.useEffect(()=>{
+    const el=ref.current;if(!el)return;
+    const obs=new IntersectionObserver(([entry])=>{if(entry.isIntersecting){setTimeout(()=>setV(true),delay);obs.disconnect();}},{threshold:0.08});
+    obs.observe(el);return()=>obs.disconnect();
+  },[delay]);
+  return[ref,v,dir];
+}
+
+function useCountUp(target,active,duration=1400){
+  const[val,setVal]=React.useState(0);
+  React.useEffect(()=>{
+    if(!active)return;
+    let start=null;
+    const step=ts=>{if(!start)start=ts;const p=Math.min((ts-start)/duration,1);setVal(Math.floor(p*target));if(p<1)requestAnimationFrame(step);};
+    requestAnimationFrame(step);
+  },[active,target,duration]);
+  return val;
+}
+
+// ── Utils ──────────────────────────────────────────────────────────────────
+
+function openCheckout(){
+  if(typeof Paddle==='undefined')return;
+  Paddle.Checkout.open({items:[{priceId:PRICE_PACK,quantity:1},{priceId:PRICE_SUB,quantity:1}],settings:{displayMode:'overlay',theme:'dark',locale:'en'},successUrl:'https://app.mindshiftlabs.lat/signup'});
+}
+
+// ── Icons ─────────────────────────────────────────────────────────────────
+
+const WIcon={
+  arrowR:(s=16,c='currentColor',sw=1.8)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M5 12h14M13 6l6 6-6 6" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  check:(s=14,c='currentColor',sw=2.6)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke={c} strokeWidth={sw} strokeLinecap="round" strokeLinejoin="round"/></svg>,
+  sparkle:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M12 2l1.7 7L21 12l-7.3 1L12 22l-1.7-9L3 12l7.3-1z"/></svg>,
+  flame:(s=18,c=W.orange)=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M13 2c0 4-5 4-5 9 0 1.4.5 2.6 1.4 3.5C8.5 13.6 8 12 8 10.5 8 14 5 15 5 18.5 5 21.5 8 23 12 23s7-1.5 7-4.5C19 13 13 13 13 2z"/></svg>,
+  bolt:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/></svg>,
+  brain:(s=20,c='currentColor',sw=1.6)=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M9 4.5a2.5 2.5 0 00-2.5 2.5v.5A2.5 2.5 0 004 10v.5A2.5 2.5 0 005 13a2.5 2.5 0 00-1 2v.5A2.5 2.5 0 006.5 18 2.5 2.5 0 009 20.5h.5V4.5z" stroke={c} strokeWidth={sw}/><path d="M15 4.5a2.5 2.5 0 012.5 2.5v.5A2.5 2.5 0 0120 10v.5a2.5 2.5 0 01-1 2 2.5 2.5 0 011 2v.5a2.5 2.5 0 01-2.5 2.5A2.5 2.5 0 0115 20.5h-.5V4.5z" stroke={c} strokeWidth={sw}/></svg>,
+  play:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M8 5v14l11-7z"/></svg>,
+  x:(s=18,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M18 6L6 18M6 6l12 12" stroke={c} strokeWidth={2} strokeLinecap="round"/></svg>,
+  quote:(s=32,c='currentColor')=><svg width={s} height={s} viewBox="0 0 32 32" fill={c} opacity={0.12}><path d="M9.6 20.8C6.8 20.8 5 18.6 5 15.8c0-4.4 3-8.8 8.4-12L15 5.6C10.6 7.8 8.2 10.6 7.6 14c.4-.2.9-.2 1.4-.2 2.6 0 4.6 1.8 4.6 4.4 0 1.4-.5 2.6-1.4 3.4-.8.8-1.6 1.2-2.6 1.2zM21.6 20.8c-2.8 0-4.6-2.2-4.6-5 0-4.4 3-8.8 8.4-12L27 5.6c-4.4 2.2-6.8 5-7.4 8.4.4-.2.9-.2 1.4-.2 2.6 0 4.6 1.8 4.6 4.4 0 1.4-.5 2.6-1.4 3.4-.8.8-1.8 1.2-2.6 1.2z"/></svg>,
+  star:(s=14,c=W.gold)=><svg width={s} height={s} viewBox="0 0 24 24" fill={c}><path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6z"/></svg>,
+  pdf:(s=20,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" stroke={c} strokeWidth={1.5}/><path d="M14 2v6h6M9 13h6M9 17h4" stroke={c} strokeWidth={1.5} strokeLinecap="round"/></svg>,
+  image:(s=20,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke={c} strokeWidth={1.5}/><circle cx="8.5" cy="8.5" r="1.5" fill={c}/><path d="M21 15l-5-5L5 21" stroke={c} strokeWidth={1.5} strokeLinejoin="round"/></svg>,
+  video:(s=20,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="2" y="5" width="14" height="14" rx="2" stroke={c} strokeWidth={1.5}/><path d="M16 10l5-3v10l-5-3V10z" stroke={c} strokeWidth={1.5} strokeLinejoin="round"/></svg>,
+  phone:(s=20,c='currentColor')=><svg width={s} height={s} viewBox="0 0 24 24" fill="none"><rect x="5" y="2" width="14" height="20" rx="2" stroke={c} strokeWidth={1.5}/><line x1="9" y1="18" x2="15" y2="18" stroke={c} strokeWidth={1.5} strokeLinecap="round"/></svg>,
+};
+
+// ── Primitives ─────────────────────────────────────────────────────────────
+
+function Glow({top,left,right,bottom,w=600,h=600,color=W.orange,opacity=0.18,blur=4,animate=false}){
+  const a=Math.round(opacity*255).toString(16).padStart(2,'0');
+  return <div style={{position:'absolute',top,left,right,bottom,width:w,height:h,borderRadius:'50%',background:`radial-gradient(circle,${color}${a} 0%,${color}00 60%)`,pointerEvents:'none',filter:`blur(${blur}px)`,animation:animate?'glow-pulse 4s ease-in-out infinite':'none',willChange:'opacity'}}/>;
+}
+
+function AnimatedGlow({top,left,right,bottom,w=700,h=700,color=W.orange,opacity=0.16,blur=5,which='a'}){
+  const a=Math.round(opacity*255).toString(16).padStart(2,'0');
+  const anim=which==='a'?'float-a 9s ease-in-out infinite':which==='b'?'float-b 12s ease-in-out infinite':'float-c 15s ease-in-out infinite';
+  return <div style={{position:'absolute',top,left,right,bottom,width:w,height:h,borderRadius:'50%',background:`radial-gradient(circle,${color}${a} 0%,${color}00 65%)`,pointerEvents:'none',filter:`blur(${blur}px)`,animation:anim,willChange:'transform'}}/>;
+}
+
+function Eyebrow({children,color=W.muted,style}){
+  return <div style={{fontFamily:F.mono,fontSize:11,letterSpacing:2.2,textTransform:'uppercase',color,...style}}>{children}</div>;
+}
+
+function Tag({children,color=W.fg,bg=W.surfaceRaised,border,style}){
+  return <span style={{display:'inline-flex',alignItems:'center',gap:6,padding:'5px 11px',borderRadius:999,background:bg,border:border?`1px solid ${border}`:'none',fontFamily:F.mono,fontSize:10,letterSpacing:1.4,textTransform:'uppercase',color,...style}}>{children}</span>;
+}
+
+function Stars({n=5}){
+  return <div style={{display:'inline-flex',gap:2}}>{Array.from({length:n},(_,i)=><span key={i}>{WIcon.star(13,W.gold)}</span>)}</div>;
+}
+
+// ── Media Placeholder ─────────────────────────────────────────────────────
+
+function MediaPlaceholder({label,sublabel,aspect='16/9',type='image',large=false,color=W.orange}){
+  const[hov,setHov]=React.useState(false);
+  const soft=color==='#F97316'?'rgba(249,115,22,0.12)':color==='#A992E8'?'rgba(169,146,232,0.12)':'rgba(232,181,96,0.12)';
+  const softBorder=color==='#F97316'?'rgba(249,115,22,0.28)':color==='#A992E8'?'rgba(169,146,232,0.28)':'rgba(232,181,96,0.28)';
+  return(
+    <div
+      className="placeholder-zone"
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{
+        aspectRatio:aspect,
+        border:`1.5px dashed ${hov?color:softBorder}`,
+        borderRadius:large?24:16,
+        display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:14,
+        position:'relative',overflow:'hidden',
+        transition:'border-color 0.3s ease,box-shadow 0.3s ease',
+        boxShadow:hov?`0 0 40px ${soft} inset`:'none',
+        cursor:'default',
+      }}
+    >
+      <div style={{position:'absolute',inset:0,background:`radial-gradient(circle at 50% 50%,${soft} 0%,transparent 70%)`,opacity:hov?1:0,transition:'opacity 0.4s ease',pointerEvents:'none'}}/>
+      <div style={{width:large?64:52,height:large?64:52,borderRadius:'50%',background:soft,border:`1px solid ${softBorder}`,display:'flex',alignItems:'center',justifyContent:'center',position:'relative',zIndex:1,transition:'transform 0.3s ease',transform:hov?'scale(1.08)':'scale(1)'}}>
+        {type==='video'
+          ? WIcon.play(large?26:20,color)
+          : type==='pdf'
+          ? WIcon.pdf(large?24:18,color)
+          : type==='phone'
+          ? WIcon.phone(large?24:18,color)
+          : WIcon.image(large?24:18,color)
+        }
+      </div>
+      <div style={{textAlign:'center',position:'relative',zIndex:1,padding:'0 24px'}}>
+        <div style={{fontFamily:F.mono,fontSize:large?11:10,color,letterSpacing:1.6,textTransform:'uppercase',fontWeight:600}}>{label}</div>
+        {sublabel&&<div style={{fontFamily:F.sans,fontSize:12,color:W.muted,marginTop:5,lineHeight:1.5}}>{sublabel}</div>}
+      </div>
+    </div>
+  );
+}
+
+// ── PDF Previews ─────────────────────────────────────────────────────────
+
+function HabitTrackerSVG(){
+  const cx=140,cy=140,rIn=24,rOut=110,rings=8,days=31,totalAngle=270;
+  const rStep=(rOut-rIn)/rings,dStep=totalAngle/days;
+  function xy(r,deg){const rad=(deg-90)*Math.PI/180;return[cx+r*Math.cos(rad),cy+r*Math.sin(rad)];}
+  function sector(r1,r2,a1,a2){
+    const[x1,y1]=xy(r1,a1),[x2,y2]=xy(r1,a2),[x3,y3]=xy(r2,a2),[x4,y4]=xy(r2,a1);
+    const lg=(a2-a1)>180?1:0;
+    return `M${x1},${y1} A${r1},${r1} 0 ${lg} 1 ${x2},${y2} L${x3},${y3} A${r2},${r2} 0 ${lg} 0 ${x4},${y4}Z`;
+  }
+  const cells=[],labels=[],habitLines=[];
+  for(let r=0;r<rings;r++){
+    for(let d=0;d<days;d++){
+      const a1=dStep*d,a2=dStep*(d+1);
+      cells.push(sector(rIn+rStep*r,rIn+rStep*(r+1),a1,a2));
+    }
+    const midY=cy-(rIn+rStep*(r+0.5));
+    habitLines.push({x1:cx-66,y1:midY,x2:cx,y2:midY});
+  }
+  for(let d=0;d<days;d++){
+    const[lx,ly]=xy(rOut+11,dStep*(d+0.5));
+    labels.push({x:lx,y:ly,n:d+1});
+  }
+  return(
+    <svg width="100%" viewBox="0 0 275 265" style={{display:'block'}}>
+      {cells.map((d,i)=><path key={i} d={d} fill="#fff" stroke="#444" strokeWidth="0.45"/>)}
+      {habitLines.map((l,i)=><line key={i} x1={l.x1} y1={l.y1} x2={l.x2} y2={l.y2} stroke="#444" strokeWidth="0.45"/>)}
+      {labels.map((l,i)=><text key={i} x={l.x} y={l.y} fontSize="7" textAnchor="middle" dominantBaseline="middle" fill="#333" fontFamily="Arial,sans-serif">{l.n}</text>)}
+    </svg>
+  );
+}
+
+function HabitTrackerPreview(){
+  return(
+    <div style={{background:'#fff',borderRadius:10,padding:'20px 18px 16px',fontFamily:'Arial,sans-serif',color:'#1a1a1a',boxShadow:'0 16px 56px rgba(0,0,0,0.55)',width:'100%'}}>
+      <div style={{textAlign:'center',marginBottom:8,fontWeight:700,fontSize:12,letterSpacing:2,fontFamily:'Georgia,serif',textTransform:'uppercase'}}>
+        Month: <span style={{fontWeight:400,borderBottom:'1px solid #555',paddingBottom:1,letterSpacing:1}}>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      </div>
+      <div style={{textAlign:'center',fontSize:8.5,lineHeight:1.5,color:'#444',marginBottom:10,fontStyle:'italic',padding:'0 8px'}}>
+        "The habits you develop determine your future. Change your habits and you'll change your life." — <strong style={{fontStyle:'normal'}}>Brian Tracy</strong>
+      </div>
+      <HabitTrackerSVG/>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8,marginTop:8}}>
+        {['THINGS TO IMPROVE','THINGS TO BE GRATEFUL'].map((t,i)=>(
+          <div key={i} style={{border:'1px solid #444',borderRadius:4,padding:'8px 10px',minHeight:64}}>
+            <div style={{fontSize:7.5,fontWeight:700,letterSpacing:0.8,marginBottom:4}}>{t}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function MentalSoftwarePreview(){
+  return(
+    <div style={{background:'#fff',borderRadius:10,padding:'22px 20px',fontFamily:'Arial,sans-serif',color:'#1a1a1a',boxShadow:'0 16px 56px rgba(0,0,0,0.55)',width:'100%'}}>
+      <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:16}}>
+        <div style={{textDecoration:'underline',fontWeight:700,fontSize:14,letterSpacing:2,fontFamily:'Georgia,serif',textTransform:'uppercase'}}>Mental Software</div>
+        <div style={{width:30,height:30,borderRadius:'50%',border:'2.5px solid #F5C842',display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:16}}>🙂</div>
+      </div>
+      <div style={{textAlign:'center',fontWeight:700,fontSize:10,letterSpacing:1.5,marginBottom:10,textTransform:'uppercase'}}>Goals</div>
+      <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:8,marginBottom:12}}>
+        {[0,1,2].map(i=>(
+          <div key={i} style={{border:'2px solid #1a1a1a',borderRadius:14,height:68}}/>
+        ))}
+      </div>
+      <div style={{border:'1px solid #1a1a1a',borderRadius:4,padding:'10px',marginBottom:10,minHeight:80}}>
+        <div style={{textAlign:'center',fontWeight:700,fontSize:9,letterSpacing:0.5,marginBottom:3}}>WHO DO I WANT TO BECOME?</div>
+        <div style={{textAlign:'center',fontSize:8,color:'#555'}}>(identity)</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+        {["Limiting Patterns I'm Breaking","Daily Mantra"].map((t,i)=>(
+          <div key={i} style={{border:'1px solid #1a1a1a',borderRadius:4,padding:'8px 10px',minHeight:68}}>
+            <div style={{fontWeight:700,fontSize:8,letterSpacing:0.3,marginBottom:4}}>{t}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+// ── App Screen Mockups ────────────────────────────────────────────────────
+
+function AppScreenToday(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const navItems=[{icon:'⊙',l:'Habits'},{icon:'◈',l:'Mental OS'},{icon:'▦',l:'Weekly'},{icon:'✦',l:'Mantra'}];
+  return(
+    <div style={{background:BG,height:'100%',padding:'14px 12px',display:'flex',flexDirection:'column',gap:0,fontFamily:F.sans}}>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:1,lineHeight:1.2}}>Good afternoon, <span style={{fontStyle:'italic',color:W.orange}}>you.</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9.5,color:W.muted,marginBottom:11}}>3 of 3 habits done today</div>
+      <div style={{background:CARD,borderRadius:10,padding:'10px 12px',marginBottom:8,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:7}}>
+          <span style={{color:W.orange,fontSize:8}}>✦</span>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.4}}>YOUR MANTRA</span>
+        </div>
+        <div style={{fontFamily:F.serif,fontStyle:'italic',fontSize:10.5,color:W.orange,lineHeight:1.5}}>"I act with discipline over doubt, trust myself over validation, and build my future through consistent action today."</div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:8}}>
+        <div style={{background:CARD,borderRadius:10,padding:'9px 11px',border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:4}}>
+            <span style={{fontSize:10}}>🔥</span>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2}}>STREAK</span>
+          </div>
+          <div style={{fontFamily:F.serif,fontSize:22,color:W.orange,lineHeight:1}}>2d</div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>2 days strong</div>
+        </div>
+        <div style={{background:CARD,borderRadius:10,padding:'9px 11px',border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:4,marginBottom:4}}>
+            <span style={{fontSize:10}}>⚡</span>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2}}>XP TODAY</span>
+          </div>
+          <div style={{fontFamily:F.serif,fontSize:22,color:W.gold,lineHeight:1}}>+300</div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginTop:2}}>3 habits done</div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7}}>
+        {navItems.map((n,i)=>(
+          <div key={i} style={{background:CARD,borderRadius:10,padding:'10px 11px',border:`1px solid ${BORDER}`}}>
+            <div style={{fontSize:13,marginBottom:6,color:i===0?W.green:i===1?W.violet:W.orange}}>{n.icon}</div>
+            <div style={{fontFamily:F.sans,fontSize:11,fontWeight:600,color:W.fg,marginBottom:2}}>{n.l}</div>
+            <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted}}>{i===0?'3/3 today':i===1?'Your identity':i===2?'Reflect & reset':'Today\'s message'}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function AppScreenHabits(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const habits=[{n:'meditate',done:true},{n:'read',done:true},{n:'2L water',done:true}];
+  const days=['S','M','T','W','T','F','S'];
+  const dayColors=['#2a2a2a','#2a2a2a','#2a2a2a','#2a2a2a','#2a2a2a',W.green,W.orange];
+  return(
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans}}>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:10}}>
+        <div style={{width:36,height:36,borderRadius:'50%',border:`2.5px solid ${W.green}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+          <span style={{fontFamily:F.serif,fontSize:13,color:W.green,fontWeight:400}}>3<span style={{fontSize:8,color:W.muted}}>/3</span></span>
+        </div>
+        <div>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1,marginBottom:2}}>SATURDAY, JUN 6</div>
+          <div style={{fontFamily:F.serif,fontSize:15,color:W.fg}}>Your <span style={{fontStyle:'italic',color:W.green}}>habits</span></div>
+          <div style={{fontFamily:F.sans,fontSize:8,color:W.green}}>✓ All done — great work.</div>
+        </div>
+      </div>
+      <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:7,marginBottom:8}}>
+        {[{l:'THIS WEEK',v:'29',c:W.green},{l:'THIS MONTH',v:'33',c:W.violet}].map((s,i)=>(
+          <div key={i} style={{background:CARD,borderRadius:8,padding:'8px 10px',border:`1px solid ${BORDER}`}}>
+            <div style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1,marginBottom:3}}>{s.l}</div>
+            <div style={{fontFamily:F.serif,fontSize:16,color:s.c,lineHeight:1}}>{s.v}<span style={{fontSize:9,color:W.muted}}>%</span></div>
+            <div style={{height:2,background:'rgba(255,255,255,0.08)',borderRadius:1,marginTop:5}}>
+              <div style={{height:'100%',width:`${s.v}%`,background:s.c,borderRadius:1}}/>
+            </div>
+          </div>
+        ))}
+      </div>
+      <div style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:8,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:6}}>
+          <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1}}>7-DAY VIEW</span>
+          <span style={{fontFamily:F.sans,fontSize:8,color:W.muted}}>2 perfect days</span>
+        </div>
+        <div style={{display:'flex',gap:3,marginBottom:4}}>
+          {dayColors.map((c,i)=>(
+            <div key={i} style={{flex:1,height:16,borderRadius:3,background:c}}/>
+          ))}
+        </div>
+        <div style={{display:'flex',gap:3}}>
+          {days.map((d,i)=>(
+            <div key={i} style={{flex:1,fontFamily:F.mono,fontSize:6,color:W.dim,textAlign:'center'}}>{d}</div>
+          ))}
+        </div>
+      </div>
+      {habits.map((h,i)=>(
+        <div key={i} style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:5,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',gap:8}}>
+          <div style={{width:16,height:16,borderRadius:4,background:W.green,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            <span style={{color:'#0B0805',fontSize:9,fontWeight:700}}>✓</span>
+          </div>
+          <span style={{fontFamily:F.sans,fontSize:11,color:W.muted,textDecoration:'line-through',flex:1}}>{h.n}</span>
+          <span style={{fontSize:10,color:'rgba(255,255,255,0.2)'}}>×</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AppScreenOS(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const goals=['build my business up to 5k','get in shape','build discipline'];
+  const sections=[
+    {icon:'◈',iconBg:'rgba(169,146,232,0.2)',iconColor:W.violet,title:'Identity',sub:'Who you are becoming',text:'I am someone who acts with discipline, stays present, trusts the process, and builds a meaningful life through consistent action.'},
+    {icon:'◆',iconBg:'rgba(249,115,22,0.2)',iconColor:W.orange,title:'Values',sub:'What you stand for',text:'Discipline, authenticity, growth, presence. I do what I say I will do. I value truth over comfort, progress over perfection.'},
+    {icon:'◎',iconBg:'rgba(249,115,22,0.15)',iconColor:W.gold,title:'Vision',sub:'Where you are going',text:'In 3 years, I am physically strong, emotionally grounded, and financially free. I lead successful businesses that create real impact.'},
+  ];
+  return(
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans,overflowY:'auto'}}>
+      <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.5,marginBottom:5}}>SYSTEM</div>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:2}}>your <span style={{fontStyle:'italic',color:W.violet}}>Mental OS</span></div>
+      <div style={{fontFamily:F.sans,fontSize:8.5,color:W.muted,marginBottom:11}}>Tap any section to edit</div>
+      <div style={{background:CARD,borderRadius:10,padding:'9px 11px',marginBottom:7,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',gap:5,marginBottom:8}}>
+          <span style={{fontSize:9}}>🎯</span>
+          <span style={{fontFamily:F.mono,fontSize:6.5,color:W.muted,letterSpacing:1.2,flex:1}}>YOUR GOALS</span>
+          <span style={{fontFamily:F.sans,fontSize:8,color:W.orange,background:'rgba(249,115,22,0.15)',padding:'2px 7px',borderRadius:4}}>✎ Edit</span>
+        </div>
+        {goals.map((g,i)=>(
+          <div key={i} style={{display:'flex',gap:7,marginBottom:i<2?5:0}}>
+            <span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:0.5,flexShrink:0}}>0{i+1}</span>
+            <span style={{fontFamily:F.sans,fontSize:9.5,color:W.fg}}>{g}</span>
+          </div>
+        ))}
+      </div>
+      {sections.map((s,i)=>(
+        <div key={i} style={{background:CARD,borderRadius:10,padding:'9px 11px',marginBottom:6,border:`1px solid ${BORDER}`}}>
+          <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:6}}>
+            <div style={{width:22,height:22,borderRadius:6,background:s.iconBg,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:10,color:s.iconColor}}>{s.icon}</div>
+            <div style={{flex:1}}>
+              <div style={{fontFamily:F.serif,fontSize:11,color:W.fg,fontStyle:'italic'}}>{s.title}</div>
+              <div style={{fontFamily:F.sans,fontSize:7.5,color:W.muted}}>{s.sub}</div>
+            </div>
+            <span style={{fontSize:10,color:W.muted}}>›</span>
+          </div>
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.fgDim,lineHeight:1.45}}>{s.text}</div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function AppScreenStats(){
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+  const questions=[
+    'What was my biggest win this week?',
+    'What did I learn about myself?',
+    'Where did I act out of alignment with my identity?',
+    'What is the one thing I will focus on next week?',
+  ];
+  return(
+    <div style={{background:BG,height:'100%',padding:'14px 12px',fontFamily:F.sans}}>
+      <div style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1.5,marginBottom:5}}>REVIEW</div>
+      <div style={{fontFamily:F.serif,fontSize:17,color:W.fg,marginBottom:2}}>Weekly <span style={{fontStyle:'italic',color:W.orange}}>Reset</span></div>
+      <div style={{fontFamily:F.sans,fontSize:9,color:W.muted,marginBottom:10}}>June 6, 2026</div>
+      <div style={{background:CARD,borderRadius:8,padding:'8px 10px',marginBottom:9,border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',marginBottom:5}}>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted,letterSpacing:1}}>THIS WEEK</span>
+          <span style={{fontFamily:F.mono,fontSize:7,color:W.muted}}>0/5</span>
+        </div>
+        <div style={{height:2,background:'rgba(255,255,255,0.08)',borderRadius:1}}/>
+      </div>
+      {questions.map((q,i)=>(
+        <div key={i} style={{background:CARD,borderRadius:8,padding:'9px 10px',marginBottom:6,border:`1px solid ${BORDER}`}}>
+          <div style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1,marginBottom:5}}>0{i+1}</div>
+          <div style={{fontFamily:F.serif,fontSize:10,color:W.fg,fontStyle:'italic',marginBottom:6,lineHeight:1.4}}>{q}</div>
+          <div style={{height:26,background:'rgba(255,255,255,0.04)',borderRadius:5,border:`1px solid ${BORDER}`,display:'flex',alignItems:'center',paddingLeft:8}}>
+            <span style={{fontFamily:F.sans,fontSize:8,color:W.dim}}>Write your reflection...</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// ── Modals ────────────────────────────────────────────────────────────────
+
+function VideoModal({onClose}){
+  React.useEffect(()=>{
+    document.body.style.overflow='hidden';
+    const onKey=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',onKey);
+    return()=>{document.body.style.overflow='';window.removeEventListener('keydown',onKey);};
+  },[]);
+  return(
+    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.94)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,backdropFilter:'blur(10px)',animation:'reveal-fade 0.3s ease both'}}>
+      <div onClick={e=>e.stopPropagation()} style={{position:'relative',width:'100%',maxWidth:420,borderRadius:20,overflow:'hidden',background:W.surface,border:`1px solid ${W.borderStrong}`,boxShadow:`0 40px 80px rgba(0,0,0,0.8)`,animation:'reveal-up 0.35s cubic-bezier(.22,1,.36,1) both'}}>
+        <button onClick={onClose} style={{position:'absolute',top:12,right:12,zIndex:10,width:36,height:36,borderRadius:'50%',background:'rgba(0,0,0,0.6)',border:`1px solid ${W.borderStrong}`,color:W.fg,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+          {WIcon.x(16,W.fg)}
+        </button>
+        {PREVIEW_VIDEO_ID?(
+          <div style={{aspectRatio:'9/16'}}><iframe width="100%" height="100%" src={`https://www.youtube.com/embed/${PREVIEW_VIDEO_ID}?autoplay=1&rel=0`} frameBorder="0" allow="autoplay;fullscreen;picture-in-picture" allowFullScreen style={{display:'block'}}/></div>
+        ):(
+          <div style={{aspectRatio:'9/16',display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',gap:20,padding:40}}>
+            <div style={{width:88,height:88,borderRadius:'50%',background:W.orangeSoft,border:`1px solid ${W.orange}40`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              {WIcon.play(40,W.orange)}
+            </div>
+            <div style={{textAlign:'center'}}>
+              <div style={{fontFamily:F.serif,fontSize:30,color:W.fg,marginBottom:8}}>Preview coming soon</div>
+              <div style={{fontFamily:F.sans,fontSize:15,color:W.muted}}>The system walkthrough video launches soon</div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+const LEGAL_CONTENT={
+  privacy:{title:'Privacy Notice',updated:'May 2026',body:[
+    {h:'What we collect',t:'When you purchase, we collect your email address, name, and payment information (processed securely by Paddle — we never see your card details). When you use the dashboard, we collect usage data such as habit completions, streaks, and session activity to power your Mental OS.'},
+    {h:'How we use it',t:'Your email is used to deliver your PDFs, send your daily AI Mantra, and communicate important account updates. Usage data powers your personal dashboard and AI-generated content. We do not sell your data to third parties.'},
+    {h:'Third-party services',t:'We use Paddle (payments), Supabase (database & authentication), Resend (transactional email), and Anthropic (AI mantra generation). Each operates under their own privacy policy and processes only the data necessary for their function.'},
+    {h:'Your rights',t:'You can request deletion of your account and data at any time by emailing support@mindshiftlabs.lat. We will process your request within 30 days.'},
+    {h:'Contact',t:'For any privacy questions: support@mindshiftlabs.lat'},
+  ]},
+  terms:{title:'Terms of Service',updated:'May 2026',body:[
+    {h:'Acceptance',t:'By purchasing or using Mindshift Labs, you agree to these terms. If you do not agree, do not use the service.'},
+    {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift dashboard. You may not redistribute, resell, or share access with others.'},
+    {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro dashboard access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the dashboard or by contacting us.'},
+    {h:'Cancellation',t:'Canceling your subscription stops future charges. You retain access until the end of your current billing period. The PDFs remain yours permanently after purchase.'},
+    {h:'Limitation of liability',t:'Mindshift Labs provides tools and content for personal development. We make no guarantee of specific results. Our liability is limited to the amount you paid.'},
+    {h:'Contact',t:'For any questions: support@mindshiftlabs.lat'},
+  ]},
+  refunds:{title:'Refund Policy',updated:'May 2026',body:[
+    {h:'7-day money-back guarantee',t:'If you are not satisfied with your purchase for any reason, contact us within 7 days of your purchase date and we will issue a full refund — no questions asked.'},
+    {h:'How to request',t:'Send an email to support@mindshiftlabs.lat with the subject "Refund Request" and the email address you used to purchase. We process all refunds within 3-5 business days.'},
+    {h:'Subscription refunds',t:'Monthly subscription charges ($9/mo from day 31) are refundable if requested within 48 hours of the charge. Cancel anytime to stop future charges.'},
+    {h:'After 7 days',t:'Refund requests after the 7-day window are evaluated case by case. We are committed to being fair — reach out and we will find a solution.'},
+    {h:'Contact',t:'support@mindshiftlabs.lat'},
+  ]},
+};
+
+function LegalModal({type,onClose}){
+  const content=LEGAL_CONTENT[type];
+  React.useEffect(()=>{
+    document.body.style.overflow='hidden';
+    const onKey=e=>{if(e.key==='Escape')onClose();};
+    window.addEventListener('keydown',onKey);
+    return()=>{document.body.style.overflow='';window.removeEventListener('keydown',onKey);};
+  },[]);
+  return(
+    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.88)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,backdropFilter:'blur(8px)'}}>
+      <div onClick={e=>e.stopPropagation()} style={{position:'relative',width:'100%',maxWidth:640,maxHeight:'80vh',borderRadius:20,overflow:'hidden',background:W.surface,border:`1px solid ${W.borderStrong}`,boxShadow:`0 40px 80px rgba(0,0,0,0.8)`,display:'flex',flexDirection:'column',animation:'reveal-up 0.35s cubic-bezier(.22,1,.36,1) both'}}>
+        <div style={{padding:'24px 28px 16px',borderBottom:`1px solid ${W.border}`,display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
+          <div>
+            <div style={{fontFamily:F.serif,fontSize:24,color:W.fg}}>{content.title}</div>
+            <div style={{fontFamily:F.mono,fontSize:10,color:W.muted,letterSpacing:1.2,marginTop:4}}>LAST UPDATED · {content.updated}</div>
+          </div>
+          <button onClick={onClose} style={{width:36,height:36,borderRadius:'50%',background:'transparent',border:`1px solid ${W.border}`,color:W.muted,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
+            {WIcon.x(16,W.muted)}
+          </button>
+        </div>
+        <div style={{padding:'24px 28px',overflowY:'auto',display:'flex',flexDirection:'column',gap:20}}>
+          {content.body.map((s,i)=>(
+            <div key={i}>
+              <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg,marginBottom:6}}>{s.h}</div>
+              <div style={{fontFamily:F.sans,fontSize:13.5,lineHeight:1.7,color:W.fgDim}}>{s.t}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Top Nav ───────────────────────────────────────────────────────────────
+
+function TopNav(){
+  const m=useIsMobile();
+  const[scrolled,setScrolled]=React.useState(false);
+  const scrollActive=useActiveSection(['features','pdfs','app-screens','the-method','pricing','manifesto']);
+  const[clicked,setClicked]=React.useState(null);
+  const activeSection=clicked||scrollActive;
+  const navLinks=[
+    {label:'The App',id:'features'},
+    {label:'Screens',id:'app-screens'},
+    {label:'The Method',id:'the-method'},
+    {label:'Pricing',id:'pricing'},
+    {label:'Manifesto',id:'manifesto'},
+  ];
+  React.useEffect(()=>{
+    const f=()=>setScrolled(window.scrollY>40);
+    window.addEventListener('scroll',f,{passive:true});
+    return()=>window.removeEventListener('scroll',f);
+  },[]);
+  React.useEffect(()=>{if(scrollActive===clicked)setClicked(null);},[scrollActive]);
+  return(
+    <nav style={{position:'fixed',top:0,left:0,right:0,zIndex:50,backdropFilter:'blur(20px) saturate(180%)',WebkitBackdropFilter:'blur(20px) saturate(180%)',background:scrolled?'rgba(11,8,5,0.96)':'rgba(11,8,5,0.7)',borderBottom:`1px solid ${scrolled?W.borderStrong:W.border}`,transition:'background 0.3s ease,border-color 0.3s ease'}}>
+      <div style={{maxWidth:MAX,margin:'0 auto',padding:m?'12px 18px':'14px 32px',display:'flex',alignItems:'center',gap:m?12:32}}>
+        <a href="#" style={{display:'inline-flex',alignItems:'center',gap:10,textDecoration:'none',flexShrink:0}}>
+          <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3EBjo9aNlz0xa2ETMs6YgN4DukS/hf_20260528_235658_f0d787e4-21c6-4b37-9bf8-970979c13604.jpeg" alt="Mindshift Labs" style={{width:30,height:30,borderRadius:8,objectFit:'cover'}}/>
+          <span style={{fontFamily:F.sans,fontSize:15,fontWeight:600,color:W.fg,letterSpacing:-0.2}}>Mindshift{m?'':' Labs'}</span>
+          {!m&&<span style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.4,padding:'2px 6px',borderRadius:4,background:W.surface,border:`1px solid ${W.border}`,marginLeft:4}}>BETA</span>}
+        </a>
+        {!m&&<div style={{display:'flex',gap:24,marginLeft:16}}>
+          {navLinks.map(({label,id})=>{
+            const isActive=activeSection===id;
+            return(
+              <a key={label} href={`#${id}`} onClick={()=>setClicked(id)} style={{fontFamily:F.sans,fontSize:13.5,color:isActive?W.orange:W.muted,textDecoration:'none',fontWeight:isActive?600:500,cursor:'pointer',transition:'color 0.2s',borderBottom:isActive?`1px solid ${W.orange}`:'1px solid transparent',paddingBottom:2}}>{label}</a>
+            );
+          })}
+        </div>}
+        <div style={{flex:1}}/>
+        <a href="https://app.mindshiftlabs.lat/login" style={{height:36,padding:'0 16px',borderRadius:999,background:'transparent',border:`1px solid ${W.borderStrong}`,color:W.fgDim,fontFamily:F.sans,fontSize:13,fontWeight:500,cursor:'pointer',display:'inline-flex',alignItems:'center',textDecoration:'none',marginRight:8,transition:'border-color 0.2s,color 0.2s'}}>
+          Sign in
+        </a>
+        <button onClick={openCheckout} className="btn-main" style={{height:36,padding:'0 18px',borderRadius:999,border:0,background:W.fg,color:W.bg,fontFamily:F.sans,fontSize:13,fontWeight:600,cursor:'pointer',display:'inline-flex',alignItems:'center',gap:6,boxShadow:`0 4px 16px rgba(249,115,22,0.15)`}}>
+          Begin {WIcon.arrowR(13,W.bg,2)}
+        </button>
+      </div>
+    </nav>
+  );
+}
+
+// ── Hero ──────────────────────────────────────────────────────────────────
+
+function Hero({onWatchPreview}){
+  const m=useIsMobile();
+  const[ref,v]=useReveal(80);
+  const stats=[
+    {v:'30 days',l:'PRO INCLUDED',s:'from day one'},
+    {v:'$25',l:'FOUNDER PRICE',s:'one-time payment'},
+    {v:'$9',l:'FROM MONTH 2',s:'cancel anytime'},
+    {v:'100%',l:'AUTOMATED',s:'PDFs sent instantly'},
+  ];
+  return(
+    <section style={{position:'relative',overflow:'hidden',padding:m?'112px 20px 56px':'188px 32px 100px'}}>
+      <AnimatedGlow top={-320} left={'28%'} w={m?600:1100} h={m?600:1100} color={W.orange} opacity={0.15} blur={28} which="a"/>
+      <AnimatedGlow bottom={-200} left={-180} w={700} h={700} color={W.violet} opacity={0.07} blur={28} which="b"/>
+      <AnimatedGlow top={80} right={-120} w={500} h={500} color={W.gold} opacity={0.05} blur={32} which="c"/>
+      <div style={{position:'absolute',inset:0,opacity:0.25,mixBlendMode:'overlay',background:`repeating-radial-gradient(circle at 50% 50%,${W.faint} 0,${W.faint} 1px,transparent 1px,transparent 3.5px)`,pointerEvents:'none'}}/>
+      <div ref={ref} style={{position:'relative',maxWidth:MAX,margin:'0 auto',textAlign:'center'}}>
+        <div style={{display:'inline-flex',alignItems:'center',gap:10,padding:'7px 14px',borderRadius:999,background:'rgba(11,8,5,0.7)',border:`1px solid ${W.borderStrong}`,animation:v?'reveal-up 0.6s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+          <span style={{width:7,height:7,borderRadius:7,background:W.orange,animation:'pulse-dot 2s ease-in-out infinite'}}/>
+          <span style={{fontFamily:F.mono,fontSize:m?9:11,color:W.fgDim,letterSpacing:1.6}}>
+            {m?'LAUNCH · FOUNDER PRICING LIVE':'OFFICIAL LAUNCH · FOUNDER PRICING IS LIVE NOW'}
+          </span>
+        </div>
+        <h1 style={{margin:m?'24px auto 0':'32px auto 0',fontFamily:F.serif,fontWeight:400,fontSize:m?52:122,lineHeight:0.95,letterSpacing:m?-1.8:-4.5,color:W.fg,maxWidth:1040,animation:v?'reveal-up 0.7s 0.1s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+          The operating system<br/>
+          for the<span style={{fontStyle:'italic',color:W.orange}}> person</span> you're<br/>
+          <span style={{fontStyle:'italic'}}>becoming.</span>
+        </h1>
+        <p style={{margin:m?'22px auto 0':'34px auto 0',fontFamily:F.sans,fontSize:m?16:20,lineHeight:1.55,color:W.fgDim,maxWidth:600,fontWeight:400,animation:v?'reveal-up 0.7s 0.2s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+          Mindshift is the daily environment where you reset your mind, install discipline, and rewrite the patterns that have been quietly running your life.
+        </p>
+        <div style={{marginTop:m?28:40,display:'inline-flex',flexDirection:m?'column':'row',gap:m?10:14,alignItems:'center',width:m?'100%':'auto',animation:v?'reveal-up 0.7s 0.3s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+          <button onClick={openCheckout} className="btn-main" style={{height:56,padding:'0 30px',borderRadius:999,border:0,background:`linear-gradient(95deg,${W.orange},${W.orangeDeep})`,color:'#fff',fontFamily:F.sans,fontSize:16,fontWeight:700,letterSpacing:-0.2,display:'inline-flex',alignItems:'center',justifyContent:'center',gap:10,boxShadow:`0 16px 40px ${W.orange}55,inset 0 1px 0 ${W.gold}aa`,cursor:'pointer',width:m?'100%':'auto'}}>
+            Begin your reset {WIcon.arrowR(16,'#fff',2.4)}
+          </button>
+          <button onClick={onWatchPreview} style={{height:56,padding:'0 24px',borderRadius:999,background:'transparent',color:W.fg,border:`1px solid ${W.borderStrong}`,fontFamily:F.sans,fontSize:15,cursor:'pointer',display:'inline-flex',alignItems:'center',justifyContent:'center',gap:10,width:m?'100%':'auto',transition:'border-color 0.25s,background 0.25s'}}>
+            <span style={{width:24,height:24,borderRadius:'50%',background:W.surfaceRaised,display:'inline-flex',alignItems:'center',justifyContent:'center'}}>
+              <span style={{width:0,height:0,borderLeft:`7px solid ${W.fg}`,borderTop:'4px solid transparent',borderBottom:'4px solid transparent',marginLeft:2}}/>
+            </span>
+            Watch preview
+          </button>
+        </div>
+        <div style={{marginTop:m?20:28,fontFamily:F.mono,fontSize:m?10:11.5,color:W.muted,letterSpacing:1.4,animation:v?'reveal-up 0.7s 0.4s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+          ONE-TIME $25 · 30 PRO DAYS INCLUDED · THEN $9/MO · CANCEL ANYTIME
+        </div>
+      </div>
+      <div style={{position:'relative',maxWidth:900,margin:m?'44px auto 0':'80px auto 0',display:m?'grid':'flex',gridTemplateColumns:m?'repeat(2,1fr)':'none',alignItems:'stretch',borderRadius:20,background:'rgba(11,8,5,0.55)',border:`1px solid ${W.border}`,overflow:'hidden',animation:v?'reveal-up 0.7s 0.5s cubic-bezier(.22,1,.36,1) both':'none',opacity:v?undefined:0}}>
+        {stats.map((s,i)=>(
+          <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'flex-start',gap:2,padding:m?'18px 16px':'20px 32px',borderRight:!m&&i<3?`1px solid ${W.border}`:'none',borderBottom:m&&i<2?`1px solid ${W.border}`:'none',flex:m?undefined:1,position:'relative',overflow:'hidden'}}>
+            {i===0&&<div style={{position:'absolute',inset:0,background:`linear-gradient(135deg,${W.orange}05,transparent)`,pointerEvents:'none'}}/>}
+            <span style={{fontFamily:F.serif,fontSize:m?26:34,color:W.fg,letterSpacing:-0.8,lineHeight:1,position:'relative'}}>{s.v}</span>
+            <span style={{fontFamily:F.mono,fontSize:9,color:W.orange,letterSpacing:1.6}}>{s.l}</span>
+            <span style={{fontFamily:F.sans,fontSize:12,color:W.muted}}>{s.s}</span>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+// ── Social Proof Ticker ───────────────────────────────────────────────────
+
+const TICKER_ITEMS=[
+  '🔥 "12-day streak so far — first habit app that stuck."',
+  '✦ "The Weekly Reset is the feature I didn\'t know I needed."',
+  '🧠 "I stopped drifting. My week has a direction now."',
+  '⚡ "The mantra reads like a note from myself, not a quote poster."',
+  '◎ "One missed day in three weeks. That\'s progress for me."',
+  '🔥 "It asks who you want to become first. The habits follow."',
+  '✦ "I keep the printed Mental Software page next to my desk."',
+  '🧠 "Ten minutes on Sunday and my week makes sense."',
+];
+
+function SocialTicker(){
+  const items=[...TICKER_ITEMS,...TICKER_ITEMS];
+  return(
+    <div style={{padding:'16px 0',borderTop:`1px solid ${W.border}`,borderBottom:`1px solid ${W.border}`,background:W.surface}}>
+      <div className="ticker-wrap">
+        <div className="ticker-inner">
+          {items.map((t,i)=>(
+            <span key={i} style={{display:'inline-flex',alignItems:'center',padding:'0 36px',fontFamily:F.sans,fontSize:13.5,color:W.fgDim,whiteSpace:'nowrap'}}>{t}</span>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Mantra Update Demo ────────────────────────────────────────────────────
+
+function MantraUpdateDemo(){
+  const[phase,setPhase]=React.useState(0);
+  // 0 = week 1 mantra shown
+  // 1 = completing weekly reset (progress fills)
+  // 2 = generating new mantra (flash)
+  // 3 = week 2 mantra shown
+  const[progress,setProgress]=React.useState(0);
+  const BG='#160f08';
+  const CARD='#1e1408';
+  const BORDER='rgba(255,255,255,0.07)';
+
+  React.useEffect(()=>{
+    let t;
+    if(phase===0){t=setTimeout(()=>setPhase(1),2800);}
+    else if(phase===1){
+      setProgress(0);
+      let p=0;
+      const iv=setInterval(()=>{
+        p+=4;
+        setProgress(Math.min(p,100));
+        if(p>=100){clearInterval(iv);setTimeout(()=>setPhase(2),400);}
+      },60);
+      return()=>clearInterval(iv);
+    }
+    else if(phase===2){t=setTimeout(()=>setPhase(3),900);}
+    else if(phase===3){t=setTimeout(()=>{setPhase(0);setProgress(0);},2800);}
+    return()=>clearTimeout(t);
+  },[phase]);
+
+  const mantras=[
+    {week:1,text:'"I act with discipline over doubt, trust myself over validation, and build my future through consistent action."'},
+    {week:2,text:'"Every choice I make today is a vote for the person I am becoming. I choose intentionally and with purpose."'},
+  ];
+  const current=phase<=1?mantras[0]:mantras[1];
+  const isUpdated=phase===3;
+  const isGenerating=phase===2;
+
+  return(
+    <div style={{background:BG,borderRadius:16,padding:'18px',border:`1px solid ${BORDER}`,fontFamily:F.sans}}>
+      {/* Header */}
+      <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:14}}>
+        <div style={{fontFamily:F.mono,fontSize:7.5,color:W.muted,letterSpacing:1.3}}>YOUR MANTRA</div>
+        <div style={{fontFamily:F.mono,fontSize:7,color:isUpdated?W.green:W.muted,letterSpacing:1,display:'flex',alignItems:'center',gap:4,transition:'color 0.4s'}}>
+          {isUpdated&&<span style={{fontSize:9}}>✦</span>}
+          WEEK {current.week}
+        </div>
+      </div>
+
+      {/* Mantra text */}
+      <div style={{
+        minHeight:72,
+        fontFamily:F.serif,
+        fontStyle:'italic',
+        fontSize:13,
+        color:isGenerating?'transparent':isUpdated?W.orange:W.fg,
+        lineHeight:1.55,
+        marginBottom:14,
+        transition:'color 0.35s ease',
+        position:'relative',
+      }}>
+        {isGenerating?(
+          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center',gap:8}}>
+            <span style={{fontFamily:F.mono,fontSize:9,color:W.gold,letterSpacing:1.5,animation:'pulse-dot 1s ease-in-out infinite'}}>✦</span>
+            <span style={{fontFamily:F.mono,fontSize:8.5,color:W.gold,letterSpacing:1.2}}>Generating week {phase===2?2:1} mantra...</span>
+          </div>
+        ):current.text}
+      </div>
+
+      <div style={{height:1,background:BORDER,marginBottom:14}}/>
+
+      {/* Weekly Reset progress */}
+      <div style={{background:CARD,borderRadius:10,padding:'11px 14px',border:`1px solid ${BORDER}`}}>
+        <div style={{display:'flex',alignItems:'center',justifyContent:'space-between',marginBottom:phase===1?10:0}}>
+          <div style={{display:'flex',alignItems:'center',gap:6}}>
+            <span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1}}>▦ WEEKLY RESET</span>
+          </div>
+          {phase===0&&<span style={{fontFamily:F.sans,fontSize:9,color:W.muted,fontStyle:'italic'}}>waiting →</span>}
+          {phase===1&&<span style={{fontFamily:F.mono,fontSize:7,color:W.orange,letterSpacing:1}}>{Math.round(progress)}%</span>}
+          {(phase===2||phase===3)&&<span style={{fontFamily:F.mono,fontSize:7,color:W.green,letterSpacing:1}}>✓ Done</span>}
+        </div>
+
+        {phase===1&&(
+          <div>
+            <div style={{height:3,background:'rgba(255,255,255,0.06)',borderRadius:2,marginBottom:8,overflow:'hidden'}}>
+              <div style={{height:'100%',width:`${progress}%`,background:`linear-gradient(90deg,${W.orange},${W.gold})`,borderRadius:2,transition:'width 0.1s linear'}}/>
+            </div>
+            {['What was my biggest win?','What did I learn about myself?','Where did I act out of alignment?'].map((q,i)=>(
+              <div key={i} style={{display:'flex',alignItems:'center',gap:7,marginBottom:4}}>
+                <div style={{width:12,height:12,borderRadius:3,background:progress>33*(i+1)?W.green:'transparent',border:`1px solid ${progress>33*(i+1)?W.green:BORDER}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,transition:'all 0.3s'}}>
+                  {progress>33*(i+1)&&<span style={{color:'#0B0805',fontSize:7,fontWeight:700,lineHeight:1}}>✓</span>}
+                </div>
+                <span style={{fontFamily:F.sans,fontSize:8.5,color:progress>33*(i+1)?W.muted:W.dim,textDecoration:progress>33*(i+1)?'line-through':'none',transition:'color 0.3s'}}>{q}</span>
+              </div>
+            ))}
+          </div>
+        )}
+        {phase===0&&(
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.dim,marginTop:4}}>5 questions · takes 5 minutes</div>
+        )}
+        {(phase===2||phase===3)&&(
+          <div style={{fontFamily:F.sans,fontSize:8.5,color:W.green,marginTop:4}}>✓ 5/5 questions answered · mantra {isUpdated?'updated':'updating'}...</div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ── Features Bento ────────────────────────────────────────────────────────
+
+function MiniPhone({children,activeTab=0}){
+  const PHONE_BG='#160f08';
+  return(
+    <div style={{background:PHONE_BG,borderRadius:32,border:'1px solid rgba(255,255,255,0.1)',overflow:'hidden',boxShadow:`0 32px 64px rgba(0,0,0,0.65),0 0 40px rgba(249,115,22,0.08)`}}>
+      <div style={{padding:'10px 14px 4px',display:'flex',justifyContent:'space-between',alignItems:'center'}}>
+        <span style={{fontFamily:F.mono,fontSize:8,color:'rgba(255,255,255,0.4)'}}>9:41</span>
+        <div style={{display:'flex',gap:3,alignItems:'center'}}>
+          {[4,3,2].map(i=><div key={i} style={{width:2,height:i*2,background:'rgba(255,255,255,0.3)',borderRadius:1}}/>)}
+          <div style={{width:11,height:5,borderRadius:1.5,border:'1px solid rgba(255,255,255,0.22)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+            <div style={{width:6,height:3,background:'#5DD39E',borderRadius:1}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{width:56,height:14,background:PHONE_BG,borderRadius:'0 0 9px 9px',margin:'-1px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{width:28,height:3,background:'rgba(255,255,255,0.08)',borderRadius:2}}/>
+      </div>
+      <div style={{height:340,overflow:'hidden'}}>{children}</div>
+      <div style={{display:'flex',justifyContent:'space-around',padding:'7px 0 13px',borderTop:'1px solid rgba(255,255,255,0.05)',background:PHONE_BG}}>
+        {['Today','Habits','OS','Stats'].map((t,i)=>(
+          <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:2}}>
+            <div style={{width:20,height:20,borderRadius:5,background:i===activeTab?'#F97316':'rgba(255,255,255,0.04)',display:'flex',alignItems:'center',justifyContent:'center',transition:'background 0.2s'}}>
+              <div style={{width:7,height:7,borderRadius:2,background:i===activeTab?'#fff':'rgba(255,255,255,0.18)'}}/>
+            </div>
+            <span style={{fontFamily:"'JetBrains Mono',monospace",fontSize:5.5,color:i===activeTab?'#F5EFE6':'rgba(255,255,255,0.18)',letterSpacing:0.4}}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function BentoFeatures(){
+  const m=useIsMobile();
+  const[r0,v0]=useReveal(0);
+  const[r1,v1]=useReveal(80);
+  const[r2,v2]=useReveal(180);
+  const[r3,v3]=useReveal(260);
+  const appFeatures=[
+    {icon:'⊙',color:'#5DD39E',label:'Habit Tracker',desc:'Daily check-ins, streaks & 7-day view'},
+    {icon:'◈',color:'#A992E8',label:'Mental OS',desc:'Goals, identity, values & vision'},
+    {icon:'▦',color:'#F97316',label:'Weekly Reset',desc:'5 reflection questions, weekly review'},
+    {icon:'✦',color:'#E8B560',label:'Weekly Mantra',desc:'AI-generated from your Mental OS'},
+  ];
+  return(
+    <section id="features" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:MAX,margin:'0 auto'}}>
+        <div ref={r0} className={`reveal-el${v0?' visible':''}`} style={{marginBottom:m?40:60}}>
+          <Eyebrow style={{marginBottom:14}}>The system</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:68,lineHeight:1.01,letterSpacing:m?-1:-2.2,color:W.fg,margin:'0 0 18px',maxWidth:760}}>
+            Your identity operating system.<br/><span style={{fontStyle:'italic',color:W.orange}}>On the web.</span>
+          </h2>
+          <p style={{fontFamily:F.sans,fontSize:m?15:17,lineHeight:1.65,color:W.fgDim,maxWidth:580,margin:0}}>
+            The dashboard is where transformation happens every day. Four modules built to compound: habits, identity, weekly review, and a mantra that evolves with you.
+          </p>
+        </div>
+
+        <div style={{display:'grid',gridTemplateColumns:m?'1fr':'repeat(3,1fr)',gap:m?12:14}}>
+
+          {/* Card 1 — APP (large, 2 cols) */}
+          <div ref={r1} className={`card-lift reveal-fade${v1?' visible':''}`} style={{gridColumn:m?'1':'1/3',background:W.surface,border:`1px solid ${W.borderStrong}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.orange}60,transparent)`}}/>
+            <div style={{padding:m?'28px 24px':'36px 40px',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:48,alignItems:'center'}}>
+              <div>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:18}}>
+                  <div style={{width:48,height:48,borderRadius:14,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    {WIcon.bolt(24,W.orange)}
+                  </div>
+                  <div>
+                    <div style={{fontFamily:F.serif,fontSize:m?22:28,color:W.fg,fontWeight:400}}>Mindshift Dashboard</div>
+                    <Tag color={W.orange} bg={W.orangeSoft} border={`${W.orange}30`} style={{marginTop:5}}>Web · 30 days Pro included</Tag>
+                  </div>
+                </div>
+                <p style={{fontFamily:F.sans,fontSize:m?14:16,lineHeight:1.72,color:W.fgDim,margin:'0 0 24px'}}>
+                  Not another productivity tool. Four modules that work together to change who you are — built around your identity, not your to-do list.
+                </p>
+                <div style={{display:'flex',flexDirection:'column',gap:12}}>
+                  {appFeatures.map((f,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'center',gap:12}}>
+                      <div style={{width:32,height:32,borderRadius:9,background:`${f.color}15`,border:`1px solid ${f.color}25`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,fontSize:13,color:f.color}}>{f.icon}</div>
+                      <div>
+                        <div style={{fontFamily:F.sans,fontSize:13.5,fontWeight:600,color:W.fg,marginBottom:1}}>{f.label}</div>
+                        <div style={{fontFamily:F.sans,fontSize:12,color:W.muted}}>{f.desc}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div style={{display:'flex',justifyContent:'center',marginTop:m?32:0,gap:16}}>
+                <div style={{width:m?160:178,animation:'float-phone 6s ease-in-out infinite'}}>
+                  <MiniPhone activeTab={0}><AppScreenToday/></MiniPhone>
+                </div>
+                {!m&&<div style={{width:178,marginTop:32,animation:'float-phone 6s ease-in-out infinite',animationDelay:'1.5s'}}>
+                  <MiniPhone activeTab={1}><AppScreenHabits/></MiniPhone>
+                </div>}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 2 — PDFs (compact, 1 col) */}
+          <div ref={r2} className={`card-lift reveal-fade${v2?' visible':''}`} style={{gridColumn:m?'1':'3',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative',display:'flex',flexDirection:'column'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.violet}40,transparent)`}}/>
+            <div style={{padding:m?'28px 24px':'32px 28px',flex:1,display:'flex',flexDirection:'column'}}>
+              <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:14}}>
+                <div style={{width:40,height:40,borderRadius:10,background:W.violetSoft,border:`1px solid ${W.violet}25`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                  {WIcon.brain(20,W.violet,1.6)}
+                </div>
+                <div>
+                  <div style={{fontFamily:F.serif,fontSize:m?18:20,color:W.fg,fontWeight:400}}>Bonus PDFs</div>
+                  <Tag color={W.violet} bg={W.violetSoft} border={`${W.violet}25`} style={{marginTop:3}}>Included · Instant delivery</Tag>
+                </div>
+              </div>
+              <p style={{fontFamily:F.sans,fontSize:m?13:13.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px',flex:1}}>
+                Two printable documents included with your purchase. Use them alongside the dashboard to anchor your identity work on paper.
+              </p>
+              <div style={{display:'flex',flexDirection:'column',gap:10,marginBottom:20}}>
+                {[{icon:'📄',t:'Mental Software',s:'Goals · Identity · Mantra'},{icon:'🔄',t:'Habit Tracker',s:'31-day radial chart'}].map((p,i)=>(
+                  <div key={i} style={{display:'flex',alignItems:'center',gap:10,padding:'10px 12px',borderRadius:10,background:W.surfaceRaised,border:`1px solid ${W.border}`}}>
+                    <span style={{fontSize:16}}>{p.icon}</span>
+                    <div>
+                      <div style={{fontFamily:F.sans,fontSize:12.5,fontWeight:600,color:W.fg}}>{p.t}</div>
+                      <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:0.8,marginTop:1}}>{p.s}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            <div style={{padding:'0 20px 24px',display:'grid',gridTemplateColumns:'1fr 1fr',gap:8}}>
+              <div style={{transform:'rotate(-2deg)',transition:'transform 0.3s'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(-2deg)'}>
+                <MentalSoftwarePreview/>
+              </div>
+              <div style={{transform:'rotate(2deg)',marginTop:12,transition:'transform 0.3s'}} onMouseEnter={e=>e.currentTarget.style.transform='rotate(0deg)'} onMouseLeave={e=>e.currentTarget.style.transform='rotate(2deg)'}>
+                <HabitTrackerPreview/>
+              </div>
+            </div>
+          </div>
+
+          {/* Card 3 — Weekly Mantra (full width) */}
+          <div ref={r3} className={`card-lift reveal-fade${v3?' visible':''}`} style={{gridColumn:m?'1':'1/4',background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,overflow:'hidden',position:'relative'}}>
+            <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.gold}50,transparent)`}}/>
+            <div style={{padding:m?'28px 24px':'36px 40px',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:60,alignItems:'center'}}>
+              <div>
+                <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:16}}>
+                  <div style={{width:44,height:44,borderRadius:12,background:'rgba(232,181,96,0.12)',border:`1px solid ${W.gold}30`,display:'flex',alignItems:'center',justifyContent:'center'}}>
+                    {WIcon.sparkle(22,W.gold)}
+                  </div>
+                  <div>
+                    <div style={{fontFamily:F.serif,fontSize:m?20:24,color:W.fg,fontWeight:400}}>Weekly Mantra</div>
+                    <Tag color={W.gold} bg="rgba(232,181,96,0.1)" border={`${W.gold}30`} style={{marginTop:4}}>AI · Updates with Weekly Reset</Tag>
+                  </div>
+                </div>
+                <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 20px'}}>
+                  Every week, after you complete your Weekly Reset, the AI reads your Mental OS and generates a new mantra calibrated to exactly where you are. Not generic motivation — a precise signal built from your own answers.
+                </p>
+                <div style={{padding:'16px 20px',borderRadius:12,background:'rgba(232,181,96,0.06)',border:`1px solid ${W.gold}20`,fontFamily:F.serif,fontStyle:'italic',fontSize:m?15:17,color:W.fg,lineHeight:1.55}}>
+                  "I act with discipline over doubt, trust myself over validation, and build my future through consistent action today."
+                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:10,fontStyle:'normal'}}>AI-GENERATED · WEEK 1 · YOUR MENTAL OS</div>
+                </div>
+              </div>
+              <div style={{marginTop:m?24:0}}><MantraUpdateDemo/></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── PDF Showcase ──────────────────────────────────────────────────────────
+
+const PDFS=[
+  {
+    n:'01',
+    title:'Mental Software',
+    tag:'Identity · Goals · Daily Mantra',
+    color:W.violet,
+    desc:'Your monthly identity operating manual. Define your goals, declare who you\'re becoming, name the limiting patterns you\'re breaking, and anchor your daily mantra. One structured page — your entire mental direction for the month.',
+    features:[
+      'Goals Section — 3 goal slots to define your monthly direction with full clarity',
+      '"Who Do I Want to Become?" — write your identity declaration in your own words',
+      'Limiting Patterns I\'m Breaking — name and dismantle what has been running you',
+      'Daily Mantra — the sentence that recalibrates your mind every single morning',
+    ],
+    PreviewComp:MentalSoftwarePreview,
+  },
+  {
+    n:'02',
+    title:'Habit Tracker',
+    tag:'31 Days · 8 Habits · Radial Chart',
+    color:W.orange,
+    desc:'A 31-day radial tracker for up to 8 simultaneous habits. Each day is a segment, each habit a concentric ring. Fill it as you go. By month\'s end, you have a complete visual record of your discipline — every gap visible, every streak earned.',
+    features:[
+      '31-day radial chart — see your full month pattern at a single glance',
+      'Track up to 8 habits simultaneously in the same circular layout',
+      'Things to Improve — set your growth focus areas for the month ahead',
+      'Things to be Grateful — anchor your mindset in what is already working',
+    ],
+    PreviewComp:HabitTrackerPreview,
+  },
+];
+
+function PDFRow({pdf,idx,m}){
+  const even=idx%2===0;
+  const[rImg,vImg]=useReveal(80);
+  const[rContent,vContent]=useReveal(180);
+  const soft=pdf.color==='#F97316'?'rgba(249,115,22,0.12)':pdf.color==='#A992E8'?'rgba(169,146,232,0.12)':'rgba(232,181,96,0.12)';
+  const softBorder=pdf.color==='#F97316'?'rgba(249,115,22,0.2)':pdf.color==='#A992E8'?'rgba(169,146,232,0.2)':'rgba(232,181,96,0.2)';
+  const content=(
+    <div ref={rContent} className={`reveal-${even&&!m?'left':'right'}-el${vContent?' visible':''}`} style={{display:'flex',flexDirection:'column',justifyContent:'center'}}>
+      <div style={{display:'inline-flex',alignItems:'center',gap:10,marginBottom:20}}>
+        <span style={{fontFamily:F.serif,fontSize:48,color:softBorder,lineHeight:1,fontWeight:400}}>{pdf.n}</span>
+        <Tag color={pdf.color} bg={soft} border={softBorder}>{pdf.tag}</Tag>
+      </div>
+      <h3 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?28:44,lineHeight:1.04,letterSpacing:m?-0.5:-1.2,color:W.fg,margin:'0 0 16px'}}>{pdf.title}</h3>
+      <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.72,color:W.fgDim,margin:'0 0 28px'}}>{pdf.desc}</p>
+      <div style={{display:'flex',flexDirection:'column',gap:12}}>
+        {pdf.features.map((f,i)=>(
+          <div key={i} style={{display:'flex',alignItems:'flex-start',gap:12}}>
+            <div style={{width:20,height:20,borderRadius:6,background:soft,border:`1px solid ${softBorder}`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+              {WIcon.check(10,pdf.color,2.8)}
+            </div>
+            <span style={{fontFamily:F.sans,fontSize:m?13:14.5,lineHeight:1.6,color:W.fgDim}}>{f}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+  const PreviewComp=pdf.PreviewComp;
+  const image=(
+    <div ref={rImg} className={`reveal-scale-el${vImg?' visible':''}`} style={{maxWidth:m?'100%':420,margin:'0 auto',width:'100%'}}>
+      <PreviewComp/>
+    </div>
+  );
+  return(
+    <div style={{display:m?'flex':'grid',flexDirection:m?'column':undefined,gridTemplateColumns:m?undefined:'1fr 1fr',gap:m?32:72,alignItems:'center',padding:m?'52px 0':'80px 0',borderBottom:`1px solid ${W.border}`}}>
+      {m?<>{image}{content}</>:even?<>{image}{content}</>:<>{content}{image}</>}
+    </div>
+  );
+}
+
+function PDFShowcase(){
+  const m=useIsMobile();
+  const[hRef,hV]=useReveal(0);
+  return(
+    <section id="pdfs" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      <AnimatedGlow top={-100} left={'60%'} w={600} h={500} color={W.violet} opacity={0.06} blur={24} which="c"/>
+      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative'}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?12:0}}>
+          <Eyebrow style={{marginBottom:14}}>Included with your purchase</Eyebrow>
+          <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
+            <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:'0 0 16px',maxWidth:640}}>
+              Two documents.<br/><span style={{fontStyle:'italic',color:W.orange}}>Included free.</span>
+            </h2>
+            <p style={{fontFamily:F.sans,fontSize:m?15:16,lineHeight:1.65,color:W.muted,maxWidth:500,margin:'0 0 0 -60px',paddingBottom:m?0:8}}>
+              Both PDFs land in your inbox the moment you purchase — no waiting, no manual steps. Use them alongside the dashboard to anchor your transformation on paper too.
+            </p>
+          </div>
+        </div>
+        {PDFS.map((pdf,i)=><PDFRow key={i} pdf={pdf} idx={i} m={m}/>)}
+      </div>
+    </section>
+  );
+}
+
+// ── App Screenshots ───────────────────────────────────────────────────────
+
+const APP_SCREENS=[
+  {label:'Dashboard · Today',sublabel:'AI Mantra · Streak · XP · Quick nav',Comp:AppScreenToday,color:W.orange},
+  {label:'Habit Tracker',sublabel:'Daily check-ins · 7-day view · Calendar',Comp:AppScreenHabits,color:W.green},
+  {label:'Mental OS',sublabel:'Goals · Identity · Values · Vision',Comp:AppScreenOS,color:W.violet},
+  {label:'Weekly Reset',sublabel:'5 reflection questions · Weekly review',Comp:AppScreenStats,color:W.gold},
+];
+
+function PhoneShell({children,color=W.orange}){
+  return(
+    <div style={{background:W.surface,borderRadius:36,border:`1px solid ${W.borderStrong}`,overflow:'hidden',boxShadow:`0 32px 64px rgba(0,0,0,0.65),0 0 0 1px ${W.border},0 0 40px ${color}15`,position:'relative'}}>
+      <div style={{padding:'10px 16px 6px',display:'flex',justifyContent:'space-between',alignItems:'center',background:W.bg,borderBottom:`1px solid ${W.border}`}}>
+        <span style={{fontFamily:F.mono,fontSize:9,color:W.fgDim}}>9:41</span>
+        <div style={{display:'flex',gap:4,alignItems:'center'}}>
+          {[4,3,2].map(i=><div key={i} style={{width:2.5,height:i*2.5,background:W.fgDim,borderRadius:1}}/>)}
+          <div style={{width:12,height:6,borderRadius:2,border:`1px solid ${W.fgDim}`,marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+            <div style={{width:7,height:3.5,background:W.green,borderRadius:1}}/>
+          </div>
+        </div>
+      </div>
+      <div style={{width:70,height:20,background:W.bg,borderRadius:'0 0 14px 14px',margin:'-2px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+        <div style={{width:36,height:4,background:W.surfaceWarm,borderRadius:2}}/>
+      </div>
+      <div style={{height:420,overflow:'hidden'}}>{children}</div>
+      <div style={{display:'flex',justifyContent:'space-around',padding:'10px 0 16px',borderTop:`1px solid ${W.border}`,background:W.bg}}>
+        {['Today','Habits','OS','Stats'].map((t,i)=>(
+          <div key={i} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3}}>
+            <div style={{width:18,height:18,borderRadius:4,background:W.surface,display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:7,height:7,borderRadius:1,background:W.muted}}/>
+            </div>
+            <span style={{fontFamily:F.mono,fontSize:6.5,color:W.dim,letterSpacing:0.6}}>{t}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ScreenCard({s,i}){
+  const[r,v]=useReveal(i*90);
+  const Comp=s.Comp;
+  return(
+    <div ref={r} className={`reveal-scale-el${v?' visible':''}`}>
+      <PhoneShell color={s.color||W.orange}>
+        <Comp/>
+      </PhoneShell>
+      <div style={{marginTop:14,paddingLeft:2}}>
+        <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg}}>{s.label}</div>
+        <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:3}}>{s.sublabel}</div>
+      </div>
+    </div>
+  );
+}
+
+function AppScreenshots(){
+  const m=useIsMobile();
+  const[hRef,hV]=useReveal(0);
+  return(
+    <section id="app-screens" style={{padding:m?'80px 0':'120px 32px',borderTop:`1px solid ${W.border}`,overflow:'hidden'}}>
+      <div style={{maxWidth:MAX,margin:'0 auto'}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{padding:m?'0 20px':0,marginBottom:m?36:52}}>
+          <Eyebrow style={{marginBottom:14}}>Inside the dashboard</Eyebrow>
+          <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
+            <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:0}}>
+              Your daily environment<br/>for <span style={{fontStyle:'italic',color:W.orange}}>transformation.</span>
+            </h2>
+            {!m&&<p style={{fontFamily:F.sans,fontSize:16,lineHeight:1.65,color:W.muted,maxWidth:360,margin:0,paddingBottom:8}}>
+              Not another productivity tool — the system that changes who you are at the identity level.
+            </p>}
+          </div>
+        </div>
+        {m?(
+          <div className="screenshot-scroll" style={{padding:'0 20px 16px'}}>
+            {APP_SCREENS.map((s,i)=>{
+              const Comp=s.Comp;
+              return(
+                <div key={i} className="screenshot-item" style={{width:200}}>
+                  <PhoneShell>
+                    <Comp/>
+                  </PhoneShell>
+                  <div style={{marginTop:10,paddingLeft:4}}>
+                    <div style={{fontFamily:F.sans,fontSize:12,fontWeight:600,color:W.fg}}>{s.label}</div>
+                    <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1,marginTop:2}}>{s.sublabel}</div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ):(
+          <div style={{display:'grid',gridTemplateColumns:'repeat(4,1fr)',gap:20}}>
+            {APP_SCREENS.map((s,i)=><ScreenCard key={i} s={s} i={i}/>)}
+          </div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+// ── Video Section ─────────────────────────────────────────────────────────
+
+function VideoSection({onWatchPreview}){
+  const m=useIsMobile();
+  const[ref,v]=useReveal(0);
+  return(
+    <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      <AnimatedGlow top={-100} left={'40%'} w={700} h={500} color={W.orange} opacity={0.07} blur={28} which="b"/>
+      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative'}}>
+        <div ref={ref} className={`reveal-el${v?' visible':''}`} style={{textAlign:'center',marginBottom:m?32:48}}>
+          <Eyebrow style={{marginBottom:14,justifyContent:'center',display:'flex'}}>See it in action</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?34:56,lineHeight:1.05,letterSpacing:m?-0.8:-1.6,color:W.fg,margin:'0 auto 14px',maxWidth:560}}>
+            Watch how the<br/><span style={{fontStyle:'italic',color:W.orange}}>reset works.</span>
+          </h2>
+          <p style={{fontFamily:F.sans,fontSize:m?14:16,color:W.muted,maxWidth:440,margin:'0 auto'}}>
+            A walkthrough of the full Mindshift experience — from purchase to your first Mental OS session.
+          </p>
+        </div>
+
+        <div
+          onClick={onWatchPreview}
+          className="reveal-scale-el visible"
+          style={{
+            position:'relative',
+            borderRadius:m?16:24,
+            overflow:'hidden',
+            cursor:'pointer',
+            border:`1px solid ${W.borderStrong}`,
+            boxShadow:`0 40px 80px rgba(0,0,0,0.5)`,
+            transition:'transform 0.3s cubic-bezier(.22,1,.36,1),box-shadow 0.3s ease',
+          }}
+          onMouseEnter={e=>{e.currentTarget.style.transform='scale(1.01)';e.currentTarget.style.boxShadow=`0 48px 100px rgba(0,0,0,0.6),0 0 60px rgba(249,115,22,0.08)`;}}
+          onMouseLeave={e=>{e.currentTarget.style.transform='scale(1)';e.currentTarget.style.boxShadow=`0 40px 80px rgba(0,0,0,0.5)`;}}
+        >
+          <MediaPlaceholder label="Dashboard walkthrough video" sublabel="Full Mindshift system · ~3 min" aspect="16/9" type="video" large color={W.orange}/>
+          <div style={{position:'absolute',inset:0,display:'flex',alignItems:'center',justifyContent:'center'}}>
+            <div style={{width:m?64:80,height:m?64:80,borderRadius:'50%',background:'rgba(11,8,5,0.8)',border:`1px solid ${W.borderStrong}`,backdropFilter:'blur(12px)',display:'flex',alignItems:'center',justifyContent:'center',boxShadow:`0 8px 32px rgba(0,0,0,0.5),0 0 0 1px ${W.border}`,transition:'transform 0.2s ease,background 0.2s'}}>
+              {WIcon.play(m?28:36,W.orange)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── App Interactive Preview ───────────────────────────────────────────────
+
+function AppPreview(){
+  const m=useIsMobile();
+  const[active,setActive]=React.useState(0);
+  const[animKey,setAnimKey]=React.useState(0);
+  const[headerRef,headerV]=useReveal(0);
+  const[phoneRef,phoneV]=useReveal(200);
+
+  function switchTab(i){if(i===active)return;setActive(i);setAnimKey(k=>k+1);}
+
+  const screens=[
+    {label:'Today',color:W.orange,Comp:AppScreenToday},
+    {label:'Habits',color:W.green,Comp:AppScreenHabits},
+    {label:'Mental OS',color:W.violet,Comp:AppScreenOS},
+    {label:'Weekly',color:W.gold,Comp:AppScreenStats},
+  ];
+
+  const BG='#160f08';
+  const BORDER_PHONE='rgba(255,255,255,0.1)';
+
+  return(
+    <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,overflow:'hidden'}}>
+      <div style={{maxWidth:MAX,margin:'0 auto',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'center'}}>
+        <div ref={headerRef} className={`reveal-el${headerV?' visible':''}`}>
+          <Eyebrow style={{marginBottom:16}}>Live demo</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?36:54,lineHeight:1.05,letterSpacing:m?-1:-1.6,color:W.fg,margin:'0 0 16px'}}>
+            Every screen built<br/>for <span style={{fontStyle:'italic',color:W.orange}}>one thing.</span>
+          </h2>
+          <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.7,color:W.fgDim,margin:'0 0 28px'}}>
+            Every screen inside the Mindshift dashboard is designed to reinforce one thing: who you're becoming. Habits, XP, a weekly mantra — all wired to your identity.
+          </p>
+          <div style={{display:'flex',gap:8,flexWrap:'wrap'}}>
+            {screens.map((s,i)=>(
+              <button key={i} onClick={()=>switchTab(i)} style={{padding:'8px 18px',borderRadius:999,border:`1px solid ${active===i?s.color:W.border}`,background:active===i?`${s.color}18`:'transparent',color:active===i?s.color:W.muted,fontFamily:F.mono,fontSize:10,letterSpacing:1.2,cursor:'pointer',transition:'all 0.25s cubic-bezier(.22,1,.36,1)',fontWeight:active===i?600:400}}>{s.label}</button>
+            ))}
+          </div>
+        </div>
+        <div ref={phoneRef} className={`reveal-fade${phoneV?' visible':''}`} style={{display:'flex',justifyContent:m?'center':'flex-end',marginTop:m?44:0}}>
+          <div style={{width:m?260:278,background:BG,borderRadius:42,border:`1px solid ${BORDER_PHONE}`,overflow:'hidden',boxShadow:`0 48px 96px rgba(0,0,0,0.75),0 0 0 1px rgba(255,255,255,0.05)`,animation:'float-phone 6s ease-in-out infinite'}}>
+            {/* Status bar */}
+            <div style={{padding:'12px 18px 6px',display:'flex',justifyContent:'space-between',alignItems:'center',background:BG}}>
+              <span style={{fontFamily:F.mono,fontSize:10,color:'rgba(255,255,255,0.5)'}}>9:41</span>
+              <div style={{display:'flex',gap:4,alignItems:'center'}}>
+                {[4,3,2].map(i=><div key={i} style={{width:2.5,height:i*2.5,background:'rgba(255,255,255,0.4)',borderRadius:1}}/>)}
+                <div style={{width:13,height:6,borderRadius:2,border:'1px solid rgba(255,255,255,0.3)',marginLeft:2,display:'flex',alignItems:'center',padding:'0 1px'}}>
+                  <div style={{width:8,height:4,background:W.green,borderRadius:1}}/>
+                </div>
+              </div>
+            </div>
+            {/* Notch */}
+            <div style={{width:80,height:22,background:BG,borderRadius:'0 0 14px 14px',margin:'-2px auto 0',display:'flex',alignItems:'center',justifyContent:'center'}}>
+              <div style={{width:44,height:4,background:'rgba(255,255,255,0.12)',borderRadius:2}}/>
+            </div>
+            {/* Screen content */}
+            <div key={animKey} style={{height:360,overflow:'hidden',animation:'slide-screen 0.3s cubic-bezier(.22,1,.36,1) both'}}>
+              {React.createElement(screens[active].Comp)}
+            </div>
+            {/* Nav bar */}
+            <div style={{display:'flex',justifyContent:'space-around',padding:'10px 0 18px',borderTop:'1px solid rgba(255,255,255,0.06)',background:BG}}>
+              {screens.map((s,i)=>(
+                <div key={i} onClick={()=>switchTab(i)} style={{display:'flex',flexDirection:'column',alignItems:'center',gap:3,cursor:'pointer',transition:'opacity 0.2s'}}>
+                  <div style={{width:28,height:28,borderRadius:8,background:active===i?W.orange:'rgba(255,255,255,0.06)',display:'flex',alignItems:'center',justifyContent:'center',transition:'background 0.25s ease'}}>
+                    <div style={{width:10,height:10,borderRadius:2,background:active===i?'#fff':'rgba(255,255,255,0.3)'}}/>
+                  </div>
+                  <span style={{fontFamily:F.mono,fontSize:6.5,color:active===i?W.fg:'rgba(255,255,255,0.25)',letterSpacing:0.6}}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── How It Works ──────────────────────────────────────────────────────────
+
+function StepItem({s,i,last,m}){
+  const[r,v]=useReveal(i*120);
+  return(
+    <div ref={r} className={`reveal-el${v?' visible':''}`} style={{display:'grid',gridTemplateColumns:m?'52px 1fr':'90px 1fr',gap:m?18:36,padding:m?'32px 0':'44px 0',borderBottom:!last?`1px solid ${W.border}`:'none',alignItems:'start',position:'relative'}}>
+      <div style={{fontFamily:F.serif,fontSize:m?44:64,color:`${W.orange}25`,lineHeight:1,paddingTop:4}}>{s.n}</div>
+      <div>
+        <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
+          <div style={{width:28,height:28,borderRadius:8,background:W.orangeSoft,border:`1px solid ${W.orange}30`,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0}}>
+            {s.icon}
+          </div>
+          <h3 style={{fontFamily:F.serif,fontSize:m?20:26,fontWeight:400,color:W.fg,margin:0}}>{s.title}</h3>
+        </div>
+        <p style={{fontFamily:F.sans,fontSize:m?14:15.5,lineHeight:1.72,color:W.fgDim,margin:0}}>{s.desc}</p>
+      </div>
+    </div>
+  );
+}
+
+function HowItWorks(){
+  const m=useIsMobile();
+  const[hRef,hV]=useReveal(0);
+  const steps=[
+    {n:'01',icon:WIcon.bolt(14,W.orange),title:'Pay $25 — everything arrives in minutes',desc:'Secure checkout via Paddle. Immediately after payment you receive an email with direct download links to all Mental OS PDFs. Fully automated — no waiting, no manual steps, no support tickets.'},
+    {n:'02',icon:WIcon.phone(14,W.orange),title:'Access your dashboard and sign in with your email',desc:'Go to app.mindshiftlabs.lat, sign in with the same email you used to purchase, create your password, and you\'re in — Pro access activated automatically from the first login.'},
+    {n:'03',icon:WIcon.flame(14,W.orange),title:'30 days to rewrite your identity',desc:'Full dashboard access, all PDFs, and a personalized mantra every week. At the end of day 30, Paddle charges $9/month automatically. Cancel anytime from the dashboard — no friction, no hidden steps.'},
+  ];
+  return(
+    <section id="the-method" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:MAX,margin:'0 auto'}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?8:0}}>
+          <Eyebrow style={{marginBottom:14}}>The method</Eyebrow>
+          <div style={{display:m?'block':'flex',justifyContent:'space-between',alignItems:'flex-end',gap:40}}>
+            <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:64,lineHeight:1.01,letterSpacing:m?-1:-2,color:W.fg,margin:'0 0 16px'}}>
+              Simple. <span style={{fontStyle:'italic',color:W.orange}}>Progressive. Real.</span>
+            </h2>
+            {!m&&<p style={{fontFamily:F.sans,fontSize:16,lineHeight:1.65,color:W.muted,maxWidth:380,margin:0,paddingBottom:8}}>
+              From purchase to your first reset in under 10 minutes. No setup wizards, no onboarding friction.
+            </p>}
+          </div>
+        </div>
+        <div>
+          {steps.map((s,i)=><StepItem key={i} s={s} i={i} last={i===steps.length-1} m={m}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Testimonials ──────────────────────────────────────────────────────────
+
+const TESTIMONIALS=[
+  {name:'Ana L.',role:'Designer',stars:5,text:'The weekly review is the part that stuck with me. I used to drift from one week to the next. Now I have a small ritual that keeps me honest about where my time actually went.'},
+  {name:'Marcus T.',role:'Software Engineer',stars:4,text:'Clean design, no bloat. It\'s basically a habit tracker plus an identity journal, but the way they\'re wired together made me actually open it every day. 12-day streak so far.'},
+  {name:'Sofia R.',role:'Small Business Owner',stars:5,text:'The Mental Software PDF surprised me. Writing down the patterns I was breaking felt uncomfortable in a good way. I keep the printed page next to my desk now.'},
+  {name:'Camille V.',role:'Marketing Manager',stars:4,text:'I was skeptical about the AI mantra, honestly. But because it\'s built from my own answers it reads less like a quote poster and more like a note from myself. That part won me over.'},
+  {name:'Ryan S.',role:'Student',stars:5,text:'I\'m 22 and I\'ve quit every habit app after a week. What\'s different here is the streak plus the weekly questions — breaking the chain actually costs me something now.'},
+  {name:'Priya N.',role:'Product Manager',stars:5,text:'Five questions on a Sunday night, ten minutes, and my week suddenly has a direction. The Weekly Reset is the feature I didn\'t know I needed.'},
+  {name:'Carlos D.',role:'Freelance Designer',stars:4,text:'Simple and focused. I\'d like a mobile app eventually, but the web dashboard works fine on my phone and the habit view is the first one I\'ve kept using past week two.'},
+  {name:'Emma W.',role:'Coach',stars:5,text:'I bought it for the PDFs and stayed for the dashboard. The identity-first framing gives my clients language for what they\'re trying to change. Fair price for what it does.'},
+  {name:'Liam O.',role:'Sales Executive',stars:4,text:'The streak counter keeps me more accountable than I expected. I\'ve missed one day in three weeks — for someone who used to quit everything after three days, that\'s progress.'},
+  {name:'Natalia F.',role:'Yoga Instructor',stars:5,text:'It doesn\'t push productivity for productivity\'s sake. It asks who you want to become first, and the habits follow from that. That order matters more than I realized.'},
+];
+
+function TestimonialCard({t}){
+  const avatarColors=[
+    `linear-gradient(135deg,${W.orange}50,${W.violet}50)`,
+    `linear-gradient(135deg,${W.violet}50,${W.green}50)`,
+    `linear-gradient(135deg,${W.gold}50,${W.orange}50)`,
+    `linear-gradient(135deg,${W.green}50,${W.violet}50)`,
+  ];
+  const colorIdx=t.name.charCodeAt(0)%4;
+  return(
+    <div className="card-lift" style={{background:W.surface,border:`1px solid ${W.border}`,borderRadius:20,padding:'28px 28px',position:'relative',overflow:'hidden',display:'flex',flexDirection:'column',width:320,flexShrink:0}}>
+      <div style={{position:'absolute',top:0,left:0,right:0,height:1,background:`linear-gradient(90deg,transparent,${W.violet}40,transparent)`}}/>
+      <div style={{position:'absolute',top:18,right:18}}>{WIcon.quote(28,W.fg)}</div>
+      <Stars n={t.stars}/>
+      <p style={{fontFamily:F.serif,fontSize:16,lineHeight:1.6,color:W.fg,margin:'14px 0 0',fontStyle:'italic',flex:1}}>"{t.text}"</p>
+      <div style={{display:'flex',alignItems:'center',gap:10,marginTop:20,paddingTop:16,borderTop:`1px solid ${W.border}`}}>
+        <div style={{width:36,height:36,borderRadius:'50%',background:avatarColors[colorIdx],display:'flex',alignItems:'center',justifyContent:'center',fontFamily:F.serif,fontSize:15,color:W.fg,fontStyle:'italic',flexShrink:0}}>
+          {t.name[0]}
+        </div>
+        <div>
+          <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg}}>{t.name}</div>
+          <div style={{fontFamily:F.mono,fontSize:9.5,color:W.muted,letterSpacing:0.8}}>{t.role}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Testimonials(){
+  const m=useIsMobile();
+  const[hRef,hV]=useReveal(0);
+  const trackRef=React.useRef(null);
+  const[isPaused,setIsPaused]=React.useState(false);
+  const posRef=React.useRef(0);
+  const rafRef=React.useRef(null);
+  const CARD_W=336; // card width + gap
+  const TOTAL=TESTIMONIALS.length;
+
+  React.useEffect(()=>{
+    const track=trackRef.current;
+    if(!track)return;
+    let lastTs=null;
+    const speed=0.1; // px per ms
+    function step(ts){
+      if(!lastTs)lastTs=ts;
+      const dt=ts-lastTs;
+      lastTs=ts;
+      if(!isPaused){
+        posRef.current+=speed*dt;
+        if(posRef.current>=CARD_W*TOTAL)posRef.current=0;
+        track.style.transform=`translateX(-${posRef.current}px)`;
+      }
+      rafRef.current=requestAnimationFrame(step);
+    }
+    rafRef.current=requestAnimationFrame(step);
+    return()=>cancelAnimationFrame(rafRef.current);
+  },[isPaused]);
+
+  const doubled=[...TESTIMONIALS,...TESTIMONIALS];
+
+  return(
+    <section style={{padding:m?'80px 0':'120px 0',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      <AnimatedGlow top={-100} left={'60%'} w={600} h={400} color={W.violet} opacity={0.06} blur={20} which="c"/>
+      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative',padding:m?'0 20px':0}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`} style={{marginBottom:m?36:52,textAlign:'center'}}>
+          <Eyebrow style={{marginBottom:16,textAlign:'center'}}>From the community</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:60,lineHeight:1.04,letterSpacing:m?-1:-1.8,color:W.fg,margin:'0 0 28px'}}>
+            The quiet work<br/><span style={{fontStyle:'italic',color:W.orange}}>speaks.</span>
+          </h2>
+          {/* Social proof bar */}
+          <div style={{display:'inline-flex',alignItems:'center',gap:m?16:32,padding:m?'14px 20px':'16px 32px',borderRadius:16,background:W.surface,border:`1px solid ${W.border}`,flexWrap:'wrap',justifyContent:'center'}}>
+            {[
+              {v:'+100',l:'customers',sub:'and growing'},
+              {v:'4.6',l:'avg rating',sub:'across reviews'},
+              {v:'7-day',l:'money back',sub:'no questions asked'},
+            ].map((s,i)=>(
+              <React.Fragment key={i}>
+                {i>0&&<div style={{width:1,height:32,background:W.border,display:m?'none':'block'}}/>}
+                <div style={{textAlign:'center'}}>
+                  <div style={{fontFamily:F.serif,fontSize:m?26:32,color:W.orange,lineHeight:1,letterSpacing:-0.5}}>{s.v}</div>
+                  <div style={{fontFamily:F.mono,fontSize:9,color:W.muted,letterSpacing:1.2,marginTop:3}}>{s.l.toUpperCase()}</div>
+                  <div style={{fontFamily:F.sans,fontSize:11,color:W.dim,marginTop:1}}>{s.sub}</div>
+                </div>
+              </React.Fragment>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Carousel — full width */}
+      <div style={{overflow:'hidden',mask:'linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)',WebkitMask:'linear-gradient(90deg,transparent 0%,#000 8%,#000 92%,transparent 100%)'}}>
+        <div
+          ref={trackRef}
+          onMouseEnter={()=>setIsPaused(true)}
+          onMouseLeave={()=>setIsPaused(false)}
+          style={{display:'flex',gap:16,width:'max-content',padding:'8px 0 24px',cursor:'grab'}}
+        >
+          {doubled.map((t,i)=><TestimonialCard key={i} t={t}/>)}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Manifesto ─────────────────────────────────────────────────────────────
+
+function ManifestoLine({l,i,m}){
+  const[r,v]=useReveal(i*90);
+  return(
+    <p ref={r} className={`reveal-el${v?' visible':''}`} style={{fontFamily:F.serif,fontWeight:400,fontSize:m?22:34,lineHeight:1.3,letterSpacing:m?-0.5:-0.8,color:i===0||i===3?W.fg:W.fgDim,margin:'0 0 28px',fontStyle:i===3?'italic':'normal'}}>
+      {l}
+    </p>
+  );
+}
+
+function Manifesto(){
+  const m=useIsMobile();
+  const lines=[
+    "We don't believe in motivation. We believe in systems.",
+    "We didn't build another productivity tool. We built the environment where transformation actually happens.",
+    "Your problem was never discipline. It's that nobody taught you how to operate your own mind.",
+    "Mindshift is the manual you should have been given.",
+  ];
+  return(
+    <section id="manifesto" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      <AnimatedGlow top={-100} left={'30%'} w={600} h={400} color={W.violet} opacity={0.06} blur={20} which="a"/>
+      <div style={{maxWidth:800,margin:'0 auto',position:'relative'}}>
+        <Eyebrow style={{marginBottom:28}}>Manifesto</Eyebrow>
+        {lines.map((l,i)=><ManifestoLine key={i} l={l} i={i} m={m}/>)}
+        <div style={{marginTop:44,paddingTop:32,borderTop:`1px solid ${W.border}`,fontFamily:F.mono,fontSize:11,color:W.dim,letterSpacing:1.6}}>
+          MINDSHIFT LABS · BUILT FOR THE QUIET WORK
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Pricing ───────────────────────────────────────────────────────────────
+
+function Pricing(){
+  const m=useIsMobile();
+  const[hRef,hV]=useReveal(0);
+  const[cRef,cV]=useReveal(200);
+  const includes=[
+    'Complete Mental OS System — 4 PDFs delivered instantly to your inbox',
+    '30 days of Pro access to the web dashboard from the first login',
+    'Personalized AI Mantra generated every single morning',
+    'Habit tracking + streaks + XP system for daily progress',
+    'Personal Mental OS dashboard with identity scores',
+    'All future updates included — forever',
+  ];
+  return(
+    <section id="pricing" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      <AnimatedGlow top={-200} left={'50%'} w={900} h={700} color={W.orange} opacity={0.11} blur={24} which="b"/>
+      <div style={{maxWidth:MAX,margin:'0 auto',position:'relative'}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`}>
+          <Eyebrow style={{marginBottom:16,textAlign:'center'}}>Launch pricing</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:68,lineHeight:1.01,letterSpacing:m?-1:-2.2,color:W.fg,margin:'0 0 64px',textAlign:'center'}}>
+            One decision. <span style={{fontStyle:'italic',color:W.orange}}>Once.</span>
+          </h2>
+        </div>
+        <div ref={cRef} className={`reveal-el${cV?' visible':''}`} style={{maxWidth:580,margin:'0 auto'}}>
+          <div className="gradient-border" style={{borderRadius:24}}>
+            <div style={{background:W.surface,border:`1px solid transparent`,borderRadius:24,overflow:'hidden',position:'relative',zIndex:1}}>
+              <div style={{height:3,background:`linear-gradient(90deg,${W.orange},${W.gold},${W.orange})`,backgroundSize:'200% auto',animation:'shimmer-line 3s linear infinite'}}/>
+              <div style={{padding:m?'32px 24px':'44px 44px'}}>
+                <div style={{display:'flex',alignItems:'baseline',gap:10,marginBottom:6}}>
+                  <span style={{fontFamily:F.serif,fontSize:m?60:76,lineHeight:1,color:W.fg,letterSpacing:-2}}>$25</span>
+                  <span style={{fontFamily:F.sans,fontSize:15,color:W.muted}}>one-time</span>
+                </div>
+                <div style={{fontFamily:F.mono,fontSize:10,color:W.orange,letterSpacing:1.8,marginBottom:28}}>FOUNDER PRICE · LIMITED TIME</div>
+                <div style={{height:1,background:W.border,marginBottom:28}}/>
+                <div style={{display:'flex',flexDirection:'column',gap:14,marginBottom:36}}>
+                  {includes.map((item,i)=>(
+                    <div key={i} style={{display:'flex',alignItems:'flex-start',gap:12}}>
+                      <div style={{width:20,height:20,borderRadius:6,background:W.orangeSoft,display:'flex',alignItems:'center',justifyContent:'center',flexShrink:0,marginTop:1}}>
+                        {WIcon.check(10,W.orange,2.8)}
+                      </div>
+                      <span style={{fontFamily:F.sans,fontSize:m?14:15,color:W.fgDim,lineHeight:1.55}}>{item}</span>
+                    </div>
+                  ))}
+                </div>
+                <button onClick={openCheckout} className="btn-main" style={{width:'100%',height:56,borderRadius:999,border:0,background:`linear-gradient(95deg,${W.orange},${W.orangeDeep})`,color:'#fff',fontFamily:F.sans,fontSize:16,fontWeight:700,display:'flex',alignItems:'center',justifyContent:'center',gap:10,boxShadow:`0 16px 40px ${W.orange}55,inset 0 1px 0 ${W.gold}aa`,cursor:'pointer'}}>
+                  Get full access {WIcon.arrowR(16,'#fff',2.4)}
+                </button>
+                <div style={{marginTop:18,textAlign:'center',fontFamily:F.mono,fontSize:10,color:W.dim,letterSpacing:1.2,lineHeight:1.8}}>
+                  FROM DAY 31 · $9/MO · CANCEL FROM THE APP<br/>SECURE CHECKOUT VIA PADDLE · 7-DAY MONEY BACK
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style={{marginTop:20,padding:'18px 22px',borderRadius:14,background:W.orangeSoft,border:`1px solid ${W.orange}30`,fontFamily:F.serif,fontStyle:'italic',fontSize:m?15:16.5,color:W.fg,lineHeight:1.45,textAlign:'center'}}>
+            "The cost of not changing is the only one most people forget to calculate."
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── FAQ ───────────────────────────────────────────────────────────────────
+
+function FAQ(){
+  const m=useIsMobile();
+  const[open,setOpen]=React.useState(null);
+  const[hRef,hV]=useReveal(0);
+  const items=[
+    {q:'How do I receive the PDFs?',a:'Immediately after payment you receive an email with direct download links to all Mental OS documents. Fully automated — no waiting, no manual delivery, no support needed.'},
+    {q:'How do I access the dashboard?',a:"Go to app.mindshiftlabs.lat in any browser, sign in with the same email you used to purchase, create your password, and you're in — Pro access activated automatically from the first login. No download required."},
+    {q:'What happens after 30 days?',a:'The $9/month subscription activates automatically via Paddle. You can cancel anytime from inside the dashboard — no friction, no hidden steps, no calls with a sales team.'},
+    {q:'What countries can purchase?',a:'Any country in the world. We accept all major international credit and debit cards and local payment methods. Payments processed by Paddle, a global payments platform.'},
+    {q:'Is there a money-back guarantee?',a:"Yes. If within the first 7 days it's not right for you, we'll refund you in full — no questions asked. Email support@mindshiftlabs.lat and we process within 3-5 business days."},
+    {q:'Does it work on any device?',a:'Yes — the dashboard is fully web-based. It works on any device with a browser: desktop, tablet, or mobile. No download required.'},
+  ];
+  return(
+    <section style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`}}>
+      <div style={{maxWidth:MAX,margin:'0 auto',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'start'}}>
+        <div ref={hRef} className={`reveal-el${hV?' visible':''}`}>
+          <Eyebrow style={{marginBottom:16}}>FAQ</Eyebrow>
+          <h2 style={{fontFamily:F.serif,fontWeight:400,fontSize:m?38:56,lineHeight:1.05,letterSpacing:m?-1:-1.8,color:W.fg,margin:0}}>
+            Questions <span style={{fontStyle:'italic',color:W.orange}}>answered.</span>
+          </h2>
+          {!m&&<p style={{marginTop:20,fontFamily:F.sans,fontSize:15,lineHeight:1.7,color:W.fgDim}}>
+            Something else?<br/>
+            <a href="mailto:support@mindshiftlabs.lat" style={{color:W.orange,textDecoration:'none'}}>support@mindshiftlabs.lat</a>
+          </p>}
+        </div>
+        <div style={{marginTop:m?32:0}}>
+          {items.map((item,i)=>(
+            <div key={i} style={{borderBottom:`1px solid ${W.border}`}}>
+              <button onClick={()=>setOpen(open===i?null:i)} style={{width:'100%',padding:'20px 0',display:'flex',justifyContent:'space-between',alignItems:'center',background:'transparent',border:'none',cursor:'pointer',textAlign:'left',gap:16}}>
+                <span style={{fontFamily:F.sans,fontSize:m?14:16,fontWeight:500,color:open===i?W.fg:W.fgDim,transition:'color 0.2s'}}>{item.q}</span>
+                <span style={{color:W.orange,fontSize:22,flexShrink:0,transition:'transform 0.35s cubic-bezier(.22,1,.36,1)',transform:open===i?'rotate(45deg)':'none',display:'inline-block',lineHeight:1}}>+</span>
+              </button>
+              <div style={{overflow:'hidden',maxHeight:open===i?500:0,transition:'max-height 0.4s cubic-bezier(.22,1,.36,1)',opacity:open===i?1:0,transitionProperty:'max-height,opacity',transitionDuration:'0.4s,0.25s'}}>
+                <div style={{paddingBottom:20,fontFamily:F.sans,fontSize:14.5,lineHeight:1.72,color:W.fgDim}}>{item.a}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Closing CTA ───────────────────────────────────────────────────────────
+
+function ClosingCTA(){
+  const m=useIsMobile();
+  const[ref,v]=useReveal(0);
+  return(
+    <section style={{position:'relative',overflow:'hidden',padding:m?'80px 20px':'140px 32px',borderTop:`1px solid ${W.border}`}}>
+      <AnimatedGlow top={-200} left={'50%'} w={1400} h={800} color={W.orange} opacity={0.18} blur={24} which="a"/>
+      <div ref={ref} className={`reveal-el${v?' visible':''}`} style={{position:'relative',maxWidth:820,margin:'0 auto',textAlign:'center'}}>
+        <h2 style={{margin:0,fontFamily:F.serif,fontWeight:400,fontSize:m?44:88,lineHeight:1.01,letterSpacing:m?-1.2:-2.8,color:W.fg}}>
+          The next 90 days will pass <span style={{fontStyle:'italic',color:W.orange}}>anyway.</span>
+        </h2>
+        <p style={{marginTop:m?20:28,fontFamily:F.sans,fontSize:m?15:18,lineHeight:1.55,color:W.fgDim,maxWidth:560,margin:`${m?20:28}px auto 0`}}>
+          You can spend them rebuilding the operating system between your ears. Or you can spend them the way you spent the last 90.
+        </p>
+        <div style={{marginTop:m?32:44}}>
+          <button onClick={openCheckout} className="btn-main" style={{height:62,padding:'0 36px',borderRadius:999,border:0,background:`linear-gradient(95deg,${W.orange},${W.orangeDeep})`,color:'#fff',fontFamily:F.sans,fontSize:18,fontWeight:700,display:'inline-flex',alignItems:'center',gap:12,boxShadow:`0 24px 60px ${W.orange}66,inset 0 1px 0 ${W.gold}aa`,cursor:'pointer',width:m?'100%':'auto',justifyContent:'center'}}>
+            Begin · $25 today {WIcon.arrowR(17,'#fff',2.4)}
+          </button>
+        </div>
+        <div style={{marginTop:24,fontFamily:F.mono,fontSize:m?10:11,color:W.muted,letterSpacing:1.4}}>
+          $25 TODAY · 30 PRO DAYS · THEN $9/MO · CANCEL ANYTIME · 7-DAY MONEY BACK
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ── Footer ────────────────────────────────────────────────────────────────
+
+function Footer({onOpenLegal}){
+  const m=useIsMobile();
+  const cols=[
+    {h:'PRODUCT',l:[
+      {t:'Features',href:'#features'},
+      {t:'The System',href:'#pdfs'},
+      {t:'The Method',href:'#the-method'},
+      {t:'Pricing',href:'#pricing'},
+      {t:'Dashboard',href:'#app-screens'},
+    ]},
+    {h:'COMPANY',l:[
+      {t:'Manifesto',href:'#manifesto'},
+      {t:'Method',href:'#the-method'},
+      {t:'Press',href:'mailto:press@mindshiftlabs.lat'},
+      {t:'Contact',href:'mailto:support@mindshiftlabs.lat'},
+    ]},
+    {h:'LEGAL',l:[
+      {t:'Privacy Notice',href:'/privacy.html'},
+      {t:'Terms of Service',href:'/terms.html'},
+      {t:'Refund Policy',href:'/refunds.html'},
+      {t:'Data export',href:'mailto:support@mindshiftlabs.lat'},
+    ]},
+  ];
+  const linkStyle={fontFamily:F.sans,fontSize:13,color:W.fgDim,textDecoration:'none',cursor:'pointer',transition:'color 0.15s',display:'block'};
+  const brand=(
+    <div>
+      <div style={{display:'inline-flex',alignItems:'center',gap:10}}>
+        <img src="https://d8j0ntlcm91z4.cloudfront.net/user_3EBjo9aNlz0xa2ETMs6YgN4DukS/hf_20260528_235658_f0d787e4-21c6-4b37-9bf8-970979c13604.jpeg" alt="Mindshift Labs" style={{width:36,height:36,borderRadius:10,objectFit:'cover'}}/>
+        <span style={{fontFamily:F.sans,fontSize:17,fontWeight:600,color:W.fg}}>Mindshift Labs</span>
+      </div>
+      <p style={{marginTop:18,fontFamily:F.sans,fontSize:13.5,lineHeight:1.65,color:W.muted,maxWidth:320}}>
+        The daily environment for rewriting the operating system between your ears. Built for everyone who does the work.
+      </p>
+      <div style={{marginTop:20,display:'inline-flex',alignItems:'center',gap:6,padding:'6px 12px',borderRadius:999,background:W.orangeSoft,border:`1px solid ${W.orange}30`}}>
+        <span style={{width:6,height:6,borderRadius:6,background:W.orange,animation:'pulse-dot 2s ease-in-out infinite'}}/>
+        <span style={{fontFamily:F.mono,fontSize:9,color:W.orange,letterSpacing:1.4}}>FOUNDER PRICING LIVE</span>
+      </div>
+    </div>
+  );
+  return(
+    <footer style={{padding:m?'52px 20px 64px':'64px 32px 80px',borderTop:`1px solid ${W.border}`,background:W.bg}}>
+      <div style={{maxWidth:MAX,margin:'0 auto'}}>
+        {m
+          ?<>{brand}<div style={{marginTop:36,display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:20}}>{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{c.l.map(item=><a key={item.t} href={item.href} style={linkStyle} className="link-hover">{item.t}</a>)}</div></div>)}</div></>
+          :<div style={{display:'grid',gridTemplateColumns:'2fr 1fr 1fr 1fr',gap:40}}>{brand}{cols.map(c=><div key={c.h}><Eyebrow color={W.dim}>{c.h}</Eyebrow><div style={{marginTop:14,display:'flex',flexDirection:'column',gap:10}}>{c.l.map(item=><a key={item.t} href={item.href} style={linkStyle} className="link-hover">{item.t}</a>)}</div></div>)}</div>
+        }
+      </div>
+      <div style={{maxWidth:MAX,margin:`${m?40:64}px auto 0`,paddingTop:24,borderTop:`1px solid ${W.border}`,display:'flex',flexDirection:m?'column':'row',gap:m?10:0,justifyContent:'space-between',alignItems:m?'flex-start':'center',fontFamily:F.mono,fontSize:10.5,color:W.dim,letterSpacing:1}}>
+        <span>© 2026 MINDSHIFT LABS · BUILT FOR THE QUIET WORK</span>
+        <span style={{display:'inline-flex',gap:14}}><span>EN</span><span style={{color:W.faint}}>·</span><span>ES</span><span style={{color:W.faint}}>·</span><span>PT</span></span>
+      </div>
+    </footer>
+  );
+}
+
+// ── App ───────────────────────────────────────────────────────────────────
+
+function App(){
+  const[showVideo,setShowVideo]=React.useState(false);
+  const[showLegal,setShowLegal]=React.useState(null);
+
+  React.useEffect(()=>{
+    if(typeof Paddle!=='undefined'){Paddle.Setup({token:PADDLE_TOKEN});}
+  },[]);
+
+  return(
+    <div style={{background:W.bg,color:W.fg,fontFamily:F.sans,WebkitFontSmoothing:'antialiased',MozOsxFontSmoothing:'grayscale',minHeight:'100vh'}}>
+      {showVideo&&<VideoModal onClose={()=>setShowVideo(false)}/>}
+      {showLegal&&<LegalModal type={showLegal} onClose={()=>setShowLegal(null)}/>}
+      <TopNav/>
+      <Hero onWatchPreview={()=>setShowVideo(true)}/>
+      <SocialTicker/>
+      <BentoFeatures/>
+      <AppScreenshots/>
+      <AppPreview/>
+      <VideoSection onWatchPreview={()=>setShowVideo(true)}/>
+      <PDFShowcase/>
+      <HowItWorks/>
+      <Testimonials/>
+      <Manifesto/>
+      <Pricing/>
+      <FAQ/>
+      <ClosingCTA/>
+      <Footer onOpenLegal={setShowLegal}/>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);

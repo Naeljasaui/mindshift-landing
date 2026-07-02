@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Disallow: /src/
+
+Sitemap: https://www.mindshiftlabs.lat/sitemap.xml
