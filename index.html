@@ -172,6 +172,7 @@
   .screenshot-item{scroll-snap-align:start;flex-shrink:0}
 
   .feature-number{font-family:'Instrument Serif',serif;font-weight:400;font-size:80px;line-height:1;color:rgba(249,115,22,0.12);position:absolute;top:-16px;left:-8px;pointer-events:none;user-select:none}
+@keyframes confetti-fall{0%{transform:translateY(-10vh) rotate(0deg);opacity:1}80%{opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}  .confetti-piece{position:fixed;top:0;border-radius:2px;animation:confetti-fall 2.8s cubic-bezier(.25,.1,.5,1) both;pointer-events:none;z-index:400}
 </style>
 </head>
 <body>

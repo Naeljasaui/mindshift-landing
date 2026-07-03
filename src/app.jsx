@@ -1697,12 +1697,30 @@ function HabitDemo(){
   const[hRef,hV]=useReveal(0);
   const[pRef,pV]=useReveal(150);
   const[done,setDone]=React.useState([false,false,false]);
+  const[confetti,setConfetti]=React.useState(null);
   const doneCount=done.filter(Boolean).length;
   const allDone=doneCount===3;
   const xp=doneCount*10;
+  const CONFETTI_COLORS=['#F97316','#E8B560','#5DD39E','#A992E8','#F5EFE6','#FF7A8A'];
 
   function toggle(i){
-    setDone(d=>{const n=[...d];n[i]=!n[i];return n;});
+    setDone(d=>{
+      const n=[...d];n[i]=!n[i];
+      // Confetti burst the moment the third habit gets checked
+      if(n.filter(Boolean).length===3&&d.filter(Boolean).length===2){
+        const pieces=Array.from({length:40},(_,k)=>({
+          left:Math.random()*100,
+          delay:Math.random()*0.5,
+          duration:2.2+Math.random()*1.2,
+          color:CONFETTI_COLORS[k%CONFETTI_COLORS.length],
+          size:6+Math.random()*7,
+          round:Math.random()>0.5,
+        }));
+        setConfetti(pieces);
+        setTimeout(()=>setConfetti(null),3600);
+      }
+      return n;
+    });
   }
   function reset(){setDone([false,false,false]);}
 
@@ -1713,6 +1731,9 @@ function HabitDemo(){
 
   return(
     <section id="habit-demo" style={{padding:m?'80px 20px':'120px 32px',borderTop:`1px solid ${W.border}`,position:'relative',overflow:'hidden'}}>
+      {confetti&&confetti.map((p,i)=>(
+        <div key={i} className="confetti-piece" style={{left:`${p.left}%`,width:p.size,height:p.size*1.3,background:p.color,borderRadius:p.round?'50%':'2px',animationDelay:`${p.delay}s`,animationDuration:`${p.duration}s`}}/>
+      ))}
       <AnimatedGlow top={-120} left={'15%'} w={700} h={500} color={W.green} opacity={0.05} blur={26} which="b"/>
       <div style={{maxWidth:MAX,margin:'0 auto',display:m?'block':'grid',gridTemplateColumns:'1fr 1fr',gap:80,alignItems:'center',position:'relative'}}>
         <div ref={hRef} className={`reveal-el${hV?' visible':''}`}>
