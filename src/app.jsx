@@ -24,13 +24,15 @@ const SUPABASE_ANON='sb_publishable_Rn6ZRDzkl-gYzVdBqU7TRA_0qeNlSuz';
 
 async function saveQuizLead({email,score,profile,answers,lang}){
   try{
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/quiz_leads`,{
+    // ignore-duplicates: one row per email — retakes don't duplicate the lead
+    // (and no public UPDATE permission is ever granted)
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/quiz_leads?on_conflict=email`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'apikey':SUPABASE_ANON,
         'Authorization':`Bearer ${SUPABASE_ANON}`,
-        'Prefer':'return=minimal',
+        'Prefer':'return=minimal,resolution=ignore-duplicates',
       },
       body:JSON.stringify({email,score,profile,answers,lang}),
     });
@@ -579,64 +581,6 @@ function VideoModal({onClose}){
             </div>
           </div>
         )}
-      </div>
-    </div>
-  );
-}
-
-const LEGAL_CONTENT={
-  privacy:{title:'Privacy Notice',updated:'May 2026',body:[
-    {h:'What we collect',t:'When you purchase, we collect your email address, name, and payment information (processed securely by Paddle — we never see your card details). When you use the dashboard, we collect usage data such as habit completions, streaks, and session activity to power your Mental OS.'},
-    {h:'How we use it',t:'Your email is used to deliver your PDFs, send your daily AI Mantra, and communicate important account updates. Usage data powers your personal dashboard and AI-generated content. We do not sell your data to third parties.'},
-    {h:'Third-party services',t:'We use Paddle (payments), Supabase (database & authentication), Resend (transactional email), and Anthropic (AI mantra generation). Each operates under their own privacy policy and processes only the data necessary for their function.'},
-    {h:'Your rights',t:'You can request deletion of your account and data at any time by emailing support@mindshiftlabs.lat. We will process your request within 30 days.'},
-    {h:'Contact',t:'For any privacy questions: support@mindshiftlabs.lat'},
-  ]},
-  terms:{title:'Terms of Service',updated:'May 2026',body:[
-    {h:'Acceptance',t:'By purchasing or using Mindshift Labs, you agree to these terms. If you do not agree, do not use the service.'},
-    {h:'License',t:'Upon purchase, you receive a personal, non-transferable license to access the Mental OS PDFs and the Mindshift dashboard. You may not redistribute, resell, or share access with others.'},
-    {h:'Payments & subscription',t:'The $25 one-time payment grants you immediate access to the PDFs and 30 days of Pro dashboard access. On day 31, a $9/month subscription activates automatically via Paddle. You can cancel at any time from inside the dashboard or by contacting us.'},
-    {h:'Cancellation',t:'Canceling your subscription stops future charges. You retain access until the end of your current billing period. The PDFs remain yours permanently after purchase.'},
-    {h:'Limitation of liability',t:'Mindshift Labs provides tools and content for personal development. We make no guarantee of specific results. Our liability is limited to the amount you paid.'},
-    {h:'Contact',t:'For any questions: support@mindshiftlabs.lat'},
-  ]},
-  refunds:{title:'Refund Policy',updated:'May 2026',body:[
-    {h:'7-day money-back guarantee',t:'If you are not satisfied with your purchase for any reason, contact us within 7 days of your purchase date and we will issue a full refund — no questions asked.'},
-    {h:'How to request',t:'Send an email to support@mindshiftlabs.lat with the subject "Refund Request" and the email address you used to purchase. We process all refunds within 3-5 business days.'},
-    {h:'Subscription refunds',t:'Monthly subscription charges ($9/mo from day 31) are refundable if requested within 48 hours of the charge. Cancel anytime to stop future charges.'},
-    {h:'After 7 days',t:'Refund requests after the 7-day window are evaluated case by case. We are committed to being fair — reach out and we will find a solution.'},
-    {h:'Contact',t:'support@mindshiftlabs.lat'},
-  ]},
-};
-
-function LegalModal({type,onClose}){
-  const content=LEGAL_CONTENT[type];
-  React.useEffect(()=>{
-    document.body.style.overflow='hidden';
-    const onKey=e=>{if(e.key==='Escape')onClose();};
-    window.addEventListener('keydown',onKey);
-    return()=>{document.body.style.overflow='';window.removeEventListener('keydown',onKey);};
-  },[]);
-  return(
-    <div onClick={onClose} style={{position:'fixed',inset:0,zIndex:300,background:'rgba(0,0,0,0.88)',display:'flex',alignItems:'center',justifyContent:'center',padding:20,backdropFilter:'blur(8px)'}}>
-      <div onClick={e=>e.stopPropagation()} style={{position:'relative',width:'100%',maxWidth:640,maxHeight:'80vh',borderRadius:20,overflow:'hidden',background:W.surface,border:`1px solid ${W.borderStrong}`,boxShadow:`0 40px 80px rgba(0,0,0,0.8)`,display:'flex',flexDirection:'column',animation:'reveal-up 0.35s cubic-bezier(.22,1,.36,1) both'}}>
-        <div style={{padding:'24px 28px 16px',borderBottom:`1px solid ${W.border}`,display:'flex',justifyContent:'space-between',alignItems:'center',flexShrink:0}}>
-          <div>
-            <div style={{fontFamily:F.serif,fontSize:24,color:W.fg}}>{content.title}</div>
-            <div style={{fontFamily:F.mono,fontSize:10,color:W.muted,letterSpacing:1.2,marginTop:4}}>LAST UPDATED · {content.updated}</div>
-          </div>
-          <button onClick={onClose} style={{width:36,height:36,borderRadius:'50%',background:'transparent',border:`1px solid ${W.border}`,color:W.muted,cursor:'pointer',display:'flex',alignItems:'center',justifyContent:'center'}}>
-            {WIcon.x(16,W.muted)}
-          </button>
-        </div>
-        <div style={{padding:'24px 28px',overflowY:'auto',display:'flex',flexDirection:'column',gap:20}}>
-          {content.body.map((s,i)=>(
-            <div key={i}>
-              <div style={{fontFamily:F.sans,fontSize:13,fontWeight:600,color:W.fg,marginBottom:6}}>{s.h}</div>
-              <div style={{fontFamily:F.sans,fontSize:13.5,lineHeight:1.7,color:W.fgDim}}>{s.t}</div>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
@@ -1634,7 +1578,7 @@ function ClosingCTA(){
 
 // ── Footer ────────────────────────────────────────────────────────────────
 
-function Footer({onOpenLegal}){
+function Footer(){
   const m=useIsMobile();
   const{t,lang,setLang}=useT();
   const cols=t.footer.cols;
@@ -2021,7 +1965,6 @@ function CostCalculator(){
 
 function App(){
   const[showVideo,setShowVideo]=React.useState(false);
-  const[showLegal,setShowLegal]=React.useState(null);
 
   React.useEffect(()=>{
     if(typeof Paddle!=='undefined'){Paddle.Setup({token:PADDLE_TOKEN});}
@@ -2030,7 +1973,6 @@ function App(){
   return(
     <div style={{background:W.bg,color:W.fg,fontFamily:F.sans,WebkitFontSmoothing:'antialiased',MozOsxFontSmoothing:'grayscale',minHeight:'100vh'}}>
       {showVideo&&<VideoModal onClose={()=>setShowVideo(false)}/>}
-      {showLegal&&<LegalModal type={showLegal} onClose={()=>setShowLegal(null)}/>}
       <TopNav/>
       <Hero onWatchPreview={()=>setShowVideo(true)}/>
       <SocialTicker/>
@@ -2048,7 +1990,7 @@ function App(){
       <Pricing/>
       <FAQ/>
       <ClosingCTA/>
-      <Footer onOpenLegal={setShowLegal}/>
+      <Footer/>
     </div>
   );
 }
