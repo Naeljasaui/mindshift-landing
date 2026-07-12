@@ -24,19 +24,21 @@ const SUPABASE_ANON='sb_publishable_Rn6ZRDzkl-gYzVdBqU7TRA_0qeNlSuz';
 
 async function saveQuizLead({email,score,profile,answers,lang}){
   try{
-    // ignore-duplicates: one row per email — retakes don't duplicate the lead
-    // (and no public UPDATE permission is ever granted)
-    const res=await fetch(`${SUPABASE_URL}/rest/v1/quiz_leads?on_conflict=email`,{
+    // Plain insert: the unique index on email rejects duplicates with 409,
+    // which counts as success (the lead was already captured before).
+    // ON CONFLICT isn't usable with insert-only RLS — Postgres would need to
+    // read existing rows to resolve the conflict, and reads are blocked.
+    const res=await fetch(`${SUPABASE_URL}/rest/v1/quiz_leads`,{
       method:'POST',
       headers:{
         'Content-Type':'application/json',
         'apikey':SUPABASE_ANON,
         'Authorization':`Bearer ${SUPABASE_ANON}`,
-        'Prefer':'return=minimal,resolution=ignore-duplicates',
+        'Prefer':'return=minimal',
       },
       body:JSON.stringify({email,score,profile,answers,lang}),
     });
-    return res.ok;
+    return res.ok||res.status===409;
   }catch{return false;}
 }
 
